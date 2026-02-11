@@ -435,7 +435,7 @@
         /* Floating Mini Table - Liquid Glass Design */
         .floating-mini-table {
             position: fixed;
-            bottom: 20px;
+            bottom: 10px;
             left: 50%;
             transform: translateX(-50%) translateY(150%);
             background: rgba(255, 255, 255, 0.08);
@@ -661,18 +661,54 @@
             display: none;
             max-width: 600px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 20px;
+            height: 100vh;
+            overflow: hidden;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .swipe-container.active {
-            display: block;
+            display: flex;
+        }
+
+        .swipe-exit-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 10;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .swipe-exit-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        /* Hide other elements in swipe mode */
+        body.swipe-mode-active header,
+        body.swipe-mode-active .prediction-table-top,
+        body.swipe-mode-active .controls,
+        body.swipe-mode-active .mode-selector,
+        body.swipe-mode-active .fdr-legend {
+            display: none;
         }
 
         .swipe-progress {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 20px;
             margin-bottom: 30px;
             font-family: 'Oswald', sans-serif;
             font-size: 1.2rem;
@@ -700,11 +736,14 @@
             justify-content: center;
             font-size: 1.4rem;
             transition: all 0.3s ease;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         .swipe-back-btn:hover {
             background: rgba(255, 255, 255, 0.2);
-            transform: translateX(-3px);
             border-color: rgba(255, 255, 255, 0.4);
         }
 
@@ -725,6 +764,7 @@
             position: relative;
             height: 500px;
             perspective: 1000px;
+            max-height: 60vh;
         }
 
         .swipe-card {
@@ -1194,6 +1234,7 @@
 
         <!-- Swipe Mode -->
         <div class="swipe-container" id="swipe-container">
+            <button class="swipe-exit-btn" onclick="setMode('fixture')" title="Exit Swipe Mode">✕</button>
             <div class="swipe-progress">
                 <button class="swipe-back-btn" id="swipe-back-btn" onclick="goBackSwipe()" title="Go back">←</button>
                 <div class="swipe-progress-text">
@@ -1414,14 +1455,19 @@
         }
 
         function setResult(team, fixtureIndex, result) {
+            const prevStandings = calculateStandings();
+
             if (results[team][fixtureIndex] === result) {
                 results[team][fixtureIndex] = null;
             } else {
                 results[team][fixtureIndex] = result;
             }
+
+            const currStandings = calculateStandings();
+
             renderFixtures();
-            updateTable();
-            showFloatingTable();
+            updateTable(currStandings);
+            showFloatingTable(prevStandings, currStandings);
         }
 
         function calculatePoints(teamKey) {
@@ -1442,21 +1488,17 @@
             return { points, gd };
         }
 
-        function updateTable() {
+        function calculateStandings() {
             const tableData = [];
 
             for (let teamKey in teams) {
                 const { points, gd } = calculatePoints(teamKey);
                 tableData.push({
+                    teamKey: teamKey,
                     name: teams[teamKey].name,
                     points,
                     gd
                 });
-
-                // Update summary
-                const played = results[teamKey].filter(r => r !== null).length;
-                document.getElementById(`${teamKey}-summary`).innerHTML = 
-                    `Predicted: <strong>${points} pts</strong> (${played}/12 played)`;
             }
 
             // Sort by points, then GD
@@ -1464,6 +1506,22 @@
                 if (b.points !== a.points) return b.points - a.points;
                 return b.gd - a.gd;
             });
+
+            return tableData;
+        }
+
+        function updateTable(tableData = null) {
+            if (!tableData) {
+                tableData = calculateStandings();
+            }
+
+            // Update summaries first
+            for (let teamKey in teams) {
+                const { points } = calculatePoints(teamKey);
+                const played = results[teamKey].filter(r => r !== null).length;
+                document.getElementById(`${teamKey}-summary`).innerHTML =
+                    `Predicted: <strong>${points} pts</strong> (${played}/12 played)`;
+            }
 
             // Render table
             const tableContainer = document.getElementById('final-table-top');
@@ -1518,6 +1576,15 @@
             document.getElementById('swipe-container').classList.toggle('active', mode === 'swipe');
             document.getElementById('fdr-legend').style.display = mode === 'fixture' ? 'block' : 'none';
             
+            // Toggle overflow and active class for locked view
+            if (mode === 'swipe') {
+                document.body.style.overflow = 'hidden';
+                document.body.classList.add('swipe-mode-active');
+            } else {
+                document.body.style.overflow = '';
+                document.body.classList.remove('swipe-mode-active');
+            }
+
             if (mode === 'swipe') {
                 resetAll();
                 generateSwipeCards();
@@ -1617,6 +1684,7 @@
             function drag(e) {
                 if (!isDragging) return;
                 const touch = e.type === 'touchmove' ? e.touches[0] : e;
+                if (e.type === 'touchmove') e.preventDefault();
                 currentX = touch.clientX;
                 currentY = touch.clientY;
                 
@@ -1781,30 +1849,25 @@
             setMode('fixture');
         }
 
-        function showFloatingTable() {
+        function showFloatingTable(prevStandings = null, currStandings = null) {
             const floatingTable = document.getElementById('floatingTable');
             const miniTableContent = document.getElementById('mini-table-content');
             
-            // Calculate current standings
-            const tableData = [];
-            for (let teamKey in teams) {
-                const { points, gd } = calculatePoints(teamKey);
-                tableData.push({
-                    name: teams[teamKey].name,
-                    points,
-                    gd
+            if (!currStandings) {
+                currStandings = calculateStandings();
+            }
+
+            // Create a map for previous positions
+            const prevRankMap = {};
+            if (prevStandings) {
+                prevStandings.forEach((team, index) => {
+                    prevRankMap[team.teamKey] = index + 1;
                 });
             }
 
-            // Sort by points, then GD
-            tableData.sort((a, b) => {
-                if (b.points !== a.points) return b.points - a.points;
-                return b.gd - a.gd;
-            });
-
             // Render mini table
             miniTableContent.innerHTML = '';
-            tableData.forEach((team, index) => {
+            currStandings.forEach((team, index) => {
                 const position = index + 1;
                 const rowDiv = document.createElement('div');
                 
@@ -1815,9 +1878,22 @@
                     rowClass += ' safe';
                 }
 
+                // Determine rank change
+                let rankIndicator = '';
+                if (prevStandings) {
+                    const prevPos = prevRankMap[team.teamKey];
+                    if (prevPos > position) {
+                        rankIndicator = '<span style="color: var(--win); margin-left: 5px; font-size: 0.8em;">▲</span>';
+                    } else if (prevPos < position) {
+                        rankIndicator = '<span style="color: var(--loss); margin-left: 5px; font-size: 0.8em;">▼</span>';
+                    } else {
+                        rankIndicator = '<span style="color: var(--grey-mid); margin-left: 5px; opacity: 0.5; font-size: 0.8em;">-</span>';
+                    }
+                }
+
                 rowDiv.className = rowClass;
                 rowDiv.innerHTML = `
-                    <div class="mini-pos">${position}</div>
+                    <div class="mini-pos">${position}${rankIndicator}</div>
                     <div class="mini-team-name">${team.name}</div>
                     <div class="mini-pts">${team.points}</div>
                 `;
