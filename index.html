@@ -1367,7 +1367,7 @@
         </div>
 
         <!-- Swipe Mode -->
-        <div class="swipe-container" id="swipe-container">
+        <div class="swipe-container" id="swipe-container" tabindex="-1">
             <button class="swipe-exit-btn" id="btn-exit-swipe" title="Exit Swipe Mode" aria-label="Exit Swipe Mode"><span aria-hidden="true">✕</span></button>
             <div class="swipe-progress">
                 <button class="swipe-back-btn" id="swipe-back-btn" title="Go back" aria-label="Go to previous card"><span aria-hidden="true">←</span></button>
@@ -1470,810 +1470,898 @@
     </div>
 
     <script>
-        const teams = {
-            'west-ham': {
-                name: 'West Ham',
-                currentPoints: 23,
-                currentGD: -17,
-                fixtures: [
-                    { date: 'Feb 21', opponent: 'Bournemouth', venue: 'H', fdr: 3 },
-                    { date: 'Feb 28', opponent: 'Liverpool', venue: 'A', fdr: 5 },
-                    { date: 'Mar 4', opponent: 'Fulham', venue: 'A', fdr: 4 },
-                    { date: 'Mar 14', opponent: 'Man City', venue: 'H', fdr: 5 },
-                    { date: 'Mar 21', opponent: 'Aston Villa', venue: 'A', fdr: 4 },
-                    { date: 'Apr 11', opponent: 'Wolves', venue: 'H', fdr: 2 },
-                    { date: 'Apr 18', opponent: 'Crystal Palace', venue: 'A', fdr: 3 },
-                    { date: 'Apr 25', opponent: 'Everton', venue: 'H', fdr: 3 },
-                    { date: 'May 2', opponent: 'Brentford', venue: 'A', fdr: 4 },
-                    { date: 'May 9', opponent: 'Arsenal', venue: 'H', fdr: 5 },
-                    { date: 'May 17', opponent: 'Newcastle', venue: 'A', fdr: 4 },
-                    { date: 'May 24', opponent: 'Leeds', venue: 'H', fdr: 3 }
-                ]
-            },
-            'leeds': {
-                name: 'Leeds United',
-                currentPoints: 30,
-                currentGD: -9,
-                fixtures: [
-                    { date: 'Feb 21', opponent: 'Aston Villa', venue: 'A', fdr: 4 },
-                    { date: 'Feb 28', opponent: 'Man City', venue: 'A', fdr: 5 },
-                    { date: 'Mar 4', opponent: 'Sunderland', venue: 'A', fdr: 3 },
-                    { date: 'Mar 14', opponent: 'Crystal Palace', venue: 'A', fdr: 3 },
-                    { date: 'Mar 21', opponent: 'Brighton', venue: 'H', fdr: 4 },
-                    { date: 'Apr 11', opponent: 'Burnley', venue: 'A', fdr: 3 },
-                    { date: 'Apr 18', opponent: 'Brentford', venue: 'H', fdr: 4 },
-                    { date: 'Apr 25', opponent: 'Sunderland', venue: 'H', fdr: 3 },
-                    { date: 'May 2', opponent: 'Newcastle', venue: 'A', fdr: 4 },
-                    { date: 'May 9', opponent: 'Chelsea', venue: 'H', fdr: 5 },
-                    { date: 'May 17', opponent: 'Everton', venue: 'A', fdr: 3 },
-                    { date: 'May 24', opponent: 'West Ham', venue: 'A', fdr: 3 }
-                ]
-            },
-            'spurs': {
-                name: 'Tottenham',
-                currentPoints: 29,
-                currentGD: -1,
-                fixtures: [
-                    { date: 'Feb 22', opponent: 'Arsenal', venue: 'H', fdr: 5 },
-                    { date: 'Mar 1', opponent: 'Fulham', venue: 'A', fdr: 4 },
-                    { date: 'Mar 5', opponent: 'Crystal Palace', venue: 'H', fdr: 3 },
-                    { date: 'Mar 15', opponent: 'Liverpool', venue: 'A', fdr: 5 },
-                    { date: 'Mar 22', opponent: 'Brighton', venue: 'A', fdr: 4 },
-                    { date: 'Apr 11', opponent: 'Everton', venue: 'H', fdr: 3 },
-                    { date: 'Apr 18', opponent: 'Sunderland', venue: 'A', fdr: 3 },
-                    { date: 'Apr 25', opponent: 'Newcastle', venue: 'H', fdr: 4 },
-                    { date: 'May 2', opponent: 'Man United', venue: 'A', fdr: 4 },
-                    { date: 'May 9', opponent: 'Burnley', venue: 'H', fdr: 3 },
-                    { date: 'May 17', opponent: 'Wolves', venue: 'H', fdr: 2 },
-                    { date: 'May 24', opponent: 'Man City', venue: 'A', fdr: 5 }
-                ]
-            },
-            'forest': {
-                name: 'Nottingham Forest',
-                currentPoints: 26,
-                currentGD: -13,
-                fixtures: [
-                    { date: 'Feb 22', opponent: 'Liverpool', venue: 'H', fdr: 5 },
-                    { date: 'Mar 1', opponent: 'Brighton', venue: 'A', fdr: 4 },
-                    { date: 'Mar 4', opponent: 'Man City', venue: 'A', fdr: 5 },
-                    { date: 'Mar 14', opponent: 'Fulham', venue: 'H', fdr: 4 },
-                    { date: 'Mar 21', opponent: 'Everton', venue: 'A', fdr: 3 },
-                    { date: 'Apr 11', opponent: 'Burnley', venue: 'H', fdr: 3 },
-                    { date: 'Apr 18', opponent: 'Sunderland', venue: 'H', fdr: 3 },
-                    { date: 'Apr 25', opponent: 'Brentford', venue: 'A', fdr: 4 },
-                    { date: 'May 2', opponent: 'Chelsea', venue: 'H', fdr: 5 },
-                    { date: 'May 9', opponent: 'Crystal Palace', venue: 'A', fdr: 3 },
-                    { date: 'May 17', opponent: 'Wolves', venue: 'H', fdr: 2 },
-                    { date: 'May 24', opponent: 'Brighton', venue: 'A', fdr: 4 }
-                ]
+/**
+ * Relegation Simulator 2025/26 - Configuration & Logic
+ */
+
+const CONFIG = {
+    RELEGATION_INDEX: 3, // 4th place (0-based index) - Bottom team in this mini-league
+    SAFE_INDEX_THRESHOLD: 2, // 3rd place and above (0-based index)
+    SWIPE_THRESHOLD: 80,
+    ANIMATION_DELAY_BASE: 0.05,
+    SWIPE_KEY_DEBOUNCE_MS: 300,
+    SCROLL_THRESHOLD: 300,
+    MINI_TABLE_TIMEOUT_MS: 4000
+};
+
+const TEAMS_DATA = {
+    'west-ham': {
+        name: 'West Ham',
+        currentPoints: 23,
+        currentGD: -17,
+        fixtures: [
+            { date: 'Feb 21', opponent: 'Bournemouth', venue: 'H', fdr: 3 },
+            { date: 'Feb 28', opponent: 'Liverpool', venue: 'A', fdr: 5 },
+            { date: 'Mar 4', opponent: 'Fulham', venue: 'A', fdr: 4 },
+            { date: 'Mar 14', opponent: 'Man City', venue: 'H', fdr: 5 },
+            { date: 'Mar 21', opponent: 'Aston Villa', venue: 'A', fdr: 4 },
+            { date: 'Apr 11', opponent: 'Wolves', venue: 'H', fdr: 2 },
+            { date: 'Apr 18', opponent: 'Crystal Palace', venue: 'A', fdr: 3 },
+            { date: 'Apr 25', opponent: 'Everton', venue: 'H', fdr: 3 },
+            { date: 'May 2', opponent: 'Brentford', venue: 'A', fdr: 4 },
+            { date: 'May 9', opponent: 'Arsenal', venue: 'H', fdr: 5 },
+            { date: 'May 17', opponent: 'Newcastle', venue: 'A', fdr: 4 },
+            { date: 'May 24', opponent: 'Leeds', venue: 'H', fdr: 3 }
+        ]
+    },
+    'leeds': {
+        name: 'Leeds United',
+        currentPoints: 30,
+        currentGD: -9,
+        fixtures: [
+            { date: 'Feb 21', opponent: 'Aston Villa', venue: 'A', fdr: 4 },
+            { date: 'Feb 28', opponent: 'Man City', venue: 'A', fdr: 5 },
+            { date: 'Mar 4', opponent: 'Sunderland', venue: 'A', fdr: 3 },
+            { date: 'Mar 14', opponent: 'Crystal Palace', venue: 'A', fdr: 3 },
+            { date: 'Mar 21', opponent: 'Brighton', venue: 'H', fdr: 4 },
+            { date: 'Apr 11', opponent: 'Burnley', venue: 'A', fdr: 3 },
+            { date: 'Apr 18', opponent: 'Brentford', venue: 'H', fdr: 4 },
+            { date: 'Apr 25', opponent: 'Sunderland', venue: 'H', fdr: 3 },
+            { date: 'May 2', opponent: 'Newcastle', venue: 'A', fdr: 4 },
+            { date: 'May 9', opponent: 'Chelsea', venue: 'H', fdr: 5 },
+            { date: 'May 17', opponent: 'Everton', venue: 'A', fdr: 3 },
+            { date: 'May 24', opponent: 'West Ham', venue: 'A', fdr: 3 }
+        ]
+    },
+    'spurs': {
+        name: 'Tottenham',
+        currentPoints: 29,
+        currentGD: -1,
+        fixtures: [
+            { date: 'Feb 22', opponent: 'Arsenal', venue: 'H', fdr: 5 },
+            { date: 'Mar 1', opponent: 'Fulham', venue: 'A', fdr: 4 },
+            { date: 'Mar 5', opponent: 'Crystal Palace', venue: 'H', fdr: 3 },
+            { date: 'Mar 15', opponent: 'Liverpool', venue: 'A', fdr: 5 },
+            { date: 'Mar 22', opponent: 'Brighton', venue: 'A', fdr: 4 },
+            { date: 'Apr 11', opponent: 'Everton', venue: 'H', fdr: 3 },
+            { date: 'Apr 18', opponent: 'Sunderland', venue: 'A', fdr: 3 },
+            { date: 'Apr 25', opponent: 'Newcastle', venue: 'H', fdr: 4 },
+            { date: 'May 2', opponent: 'Man United', venue: 'A', fdr: 4 },
+            { date: 'May 9', opponent: 'Burnley', venue: 'H', fdr: 3 },
+            { date: 'May 17', opponent: 'Wolves', venue: 'H', fdr: 2 },
+            { date: 'May 24', opponent: 'Man City', venue: 'A', fdr: 5 }
+        ]
+    },
+    'forest': {
+        name: 'Nottingham Forest',
+        currentPoints: 26,
+        currentGD: -13,
+        fixtures: [
+            { date: 'Feb 22', opponent: 'Liverpool', venue: 'H', fdr: 5 },
+            { date: 'Mar 1', opponent: 'Brighton', venue: 'A', fdr: 4 },
+            { date: 'Mar 4', opponent: 'Man City', venue: 'A', fdr: 5 },
+            { date: 'Mar 14', opponent: 'Fulham', venue: 'H', fdr: 4 },
+            { date: 'Mar 21', opponent: 'Everton', venue: 'A', fdr: 3 },
+            { date: 'Apr 11', opponent: 'Burnley', venue: 'H', fdr: 3 },
+            { date: 'Apr 18', opponent: 'Sunderland', venue: 'H', fdr: 3 },
+            { date: 'Apr 25', opponent: 'Brentford', venue: 'A', fdr: 4 },
+            { date: 'May 2', opponent: 'Chelsea', venue: 'H', fdr: 5 },
+            { date: 'May 9', opponent: 'Crystal Palace', venue: 'A', fdr: 3 },
+            { date: 'May 17', opponent: 'Wolves', venue: 'H', fdr: 2 },
+            { date: 'May 24', opponent: 'Brighton', venue: 'A', fdr: 4 }
+        ]
+    }
+};
+
+class RelegationSimulator {
+    constructor(teamsData) {
+        this.teams = teamsData;
+        this.results = {};
+        this.currentMode = 'fixture';
+        this.swipeCardData = [];
+        this.currentCardIndex = 0;
+        this.isMiniTablePinned = false;
+        this.miniTableTimeout = null;
+        this.isSwipingKey = false; // Debounce flag for keyboard swipe
+
+        this.init();
+    }
+
+    init() {
+        this.initializeResults();
+        this.bindEvents();
+        this.renderFixtures();
+        this.updateTable();
+    }
+
+    initializeResults() {
+        for (let team in this.teams) {
+            this.results[team] = this.teams[team].fixtures.map(() => null);
+        }
+    }
+
+    bindEvents() {
+        // Document level keydown for Swipe Mode
+        document.addEventListener('keydown', (e) => this.handleSwipeKeydown(e));
+
+        // Mode buttons
+        document.getElementById('mode-fixture').addEventListener('click', () => this.startApp('fixture'));
+        document.getElementById('mode-swipe').addEventListener('click', () => this.startApp('swipe'));
+
+        // Controls
+        document.getElementById('btn-back-menu').addEventListener('click', () => this.showLanding());
+        document.getElementById('btn-reset-all').addEventListener('click', () => this.resetAll());
+
+        // Swipe mode controls
+        document.getElementById('btn-exit-swipe').addEventListener('click', () => this.setMode('fixture'));
+        document.getElementById('swipe-back-btn').addEventListener('click', () => this.goBackSwipe());
+        document.getElementById('btn-swipe-loss').addEventListener('click', () => this.swipeCard('L'));
+        document.getElementById('btn-swipe-draw').addEventListener('click', () => this.swipeCard('D'));
+        document.getElementById('btn-swipe-win').addEventListener('click', () => this.swipeCard('W'));
+
+        // Scroll to top
+        document.getElementById('scrollToTop').addEventListener('click', () => this.scrollToTop());
+
+        // Reveal overlay
+        document.getElementById('btn-close-reveal').addEventListener('click', () => this.closeReveal());
+        document.getElementById('btn-share-prediction').addEventListener('click', () => this.sharePrediction());
+
+        // Mini table minimize
+        document.getElementById('btn-minimize-table').addEventListener('click', () => this.toggleMiniTableMinimize());
+
+        // Delegation for result buttons
+        document.getElementById('main-grid').addEventListener('click', (e) => {
+            if (e.target.matches('.result-btn')) {
+                const team = e.target.dataset.team;
+                const index = parseInt(e.target.dataset.index, 10);
+                const result = e.target.dataset.result;
+                this.setResult(team, index, result);
+            }
+        });
+
+        // Delegation for dynamically added pin button
+        document.addEventListener('click', (e) => {
+             if (e.target.matches('#pin-btn')) {
+                 this.toggleMiniTablePin();
+             }
+        });
+
+        // Scroll listener
+        window.addEventListener('scroll', () => {
+             const scrollToTopBtn = document.getElementById('scrollToTop');
+             if (window.pageYOffset > CONFIG.SCROLL_THRESHOLD) {
+                 scrollToTopBtn.classList.add('show');
+             } else {
+                 scrollToTopBtn.classList.remove('show');
+             }
+        });
+    }
+
+    handleSwipeKeydown(e) {
+        if (this.currentMode !== 'swipe') return;
+
+        // Prevent default scrolling behaviour for arrow keys
+        if (['ArrowLeft', 'ArrowRight', 'ArrowUp'].includes(e.key)) {
+            e.preventDefault();
+
+            // Debounce to prevent accidental double-swipes
+            if (this.isSwipingKey) return;
+            this.isSwipingKey = true;
+
+            // Execute swipe
+            if (e.key === 'ArrowLeft') this.swipeCard('L', 'left');
+            if (e.key === 'ArrowRight') this.swipeCard('W', 'right');
+            if (e.key === 'ArrowUp') this.swipeCard('D', 'up');
+
+            // Release debounce
+            setTimeout(() => { this.isSwipingKey = false; }, CONFIG.SWIPE_KEY_DEBOUNCE_MS);
+        }
+    }
+
+    renderFixtures() {
+        for (let teamKey in this.teams) {
+            const team = this.teams[teamKey];
+            const container = document.getElementById(`${teamKey}-fixtures`);
+
+            // Check if we need to build from scratch
+            const isInitialBuild = container.children.length === 0;
+
+            if (isInitialBuild) {
+                team.fixtures.forEach((fixture, index) => {
+                    const fixtureDiv = document.createElement('div');
+                    fixtureDiv.className = `fixture fdr-${fixture.fdr}`;
+                    fixtureDiv.style.animation = `jengaDrop 0.5s ease backwards ${index * CONFIG.ANIMATION_DELAY_BASE}s`;
+
+                    const result = this.results[teamKey][index];
+                    if (result) {
+                        fixtureDiv.classList.add(`result-${result}`);
+                    }
+
+                    fixtureDiv.innerHTML = `
+                        <div class="fixture-date">${fixture.date}</div>
+                        <div class="opponent">${fixture.opponent}</div>
+                        <div class="venue ${fixture.venue === 'H' ? 'home' : 'away'}">
+                            ${fixture.venue === 'H' ? 'Home' : 'Away'}
+                        </div>
+                        <div class="result-buttons">
+                            <button class="result-btn ${result === 'W' ? 'active-W' : ''}"
+                                    data-team="${teamKey}" data-index="${index}" data-result="W"
+                                    aria-pressed="${result === 'W' ? 'true' : 'false'}" aria-label="Win">W</button>
+                            <button class="result-btn ${result === 'D' ? 'active-D' : ''}"
+                                    data-team="${teamKey}" data-index="${index}" data-result="D"
+                                    aria-pressed="${result === 'D' ? 'true' : 'false'}" aria-label="Draw">D</button>
+                            <button class="result-btn ${result === 'L' ? 'active-L' : ''}"
+                                    data-team="${teamKey}" data-index="${index}" data-result="L"
+                                    aria-pressed="${result === 'L' ? 'true' : 'false'}" aria-label="Loss">L</button>
+                        </div>
+                    `;
+                    container.appendChild(fixtureDiv);
+                });
+            } else {
+                // Update existing elements to prevent re-animation
+                team.fixtures.forEach((_, index) => {
+                    this.updateFixtureUI(teamKey, index);
+                });
+            }
+        }
+    }
+
+    updateFixtureUI(teamKey, index) {
+        const container = document.getElementById(`${teamKey}-fixtures`);
+        if (!container || !container.children[index]) return;
+
+        const fixtureDiv = container.children[index];
+        const fixture = this.teams[teamKey].fixtures[index];
+        const result = this.results[teamKey][index];
+
+        // Update classes
+        fixtureDiv.className = `fixture fdr-${fixture.fdr}`;
+        if (result) fixtureDiv.classList.add(`result-${result}`);
+
+        // Update buttons only
+        const btns = fixtureDiv.getElementsByClassName('result-btn');
+        if (btns.length >= 3) {
+            this.updateButtonState(btns[0], result === 'W');
+            this.updateButtonState(btns[1], result === 'D');
+            this.updateButtonState(btns[2], result === 'L');
+        }
+    }
+
+    updateButtonState(btn, isActive) {
+        // Preserve base classes and add active state if needed
+        const baseClass = 'result-btn';
+        let activeClass = '';
+        if (isActive) {
+            const resultType = btn.dataset.result;
+            activeClass = ` active-${resultType}`;
+        }
+        btn.className = `${baseClass}${activeClass}`;
+        btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    }
+
+    checkAllPredictionsMade() {
+        return Object.values(this.results).every(teamResults =>
+            teamResults.every(r => r !== null)
+        );
+    }
+
+    setResult(team, fixtureIndex, result) {
+        const prevStandings = this.calculateStandings();
+
+        if (this.results[team][fixtureIndex] === result) {
+            this.results[team][fixtureIndex] = null;
+        } else {
+            this.results[team][fixtureIndex] = result;
+        }
+
+        const currStandings = this.calculateStandings();
+
+        this.updateFixtureUI(team, fixtureIndex);
+        this.updateTable(currStandings);
+        this.showFloatingTable(prevStandings, currStandings);
+
+        if (this.checkAllPredictionsMade()) {
+            setTimeout(() => this.showDramaticReveal(), 1000);
+        }
+    }
+
+    calculatePoints(teamKey) {
+        let points = this.teams[teamKey].currentPoints;
+        let gd = this.teams[teamKey].currentGD;
+
+        this.results[teamKey].forEach((result, index) => {
+            if (result === 'W') {
+                points += 3;
+                gd += 2; // Simplified GD calculation
+            } else if (result === 'D') {
+                points += 1;
+            } else if (result === 'L') {
+                gd -= 1; // Simplified GD calculation
+            }
+        });
+
+        return { points, gd };
+    }
+
+    calculateStandings() {
+        const tableData = [];
+
+        for (let teamKey in this.teams) {
+            const { points, gd } = this.calculatePoints(teamKey);
+            tableData.push({
+                teamKey: teamKey,
+                name: this.teams[teamKey].name,
+                points,
+                gd
+            });
+        }
+
+        // Sort by points, then GD
+        tableData.sort((a, b) => {
+            if (b.points !== a.points) return b.points - a.points;
+            return b.gd - a.gd;
+        });
+
+        return tableData;
+    }
+
+    updateTable(tableData = null) {
+        if (!tableData) {
+            tableData = this.calculateStandings();
+        }
+
+        // Update summaries first
+        for (let teamKey in this.teams) {
+            const { points } = this.calculatePoints(teamKey);
+            const played = this.results[teamKey].filter(r => r !== null).length;
+            const summaryEl = document.getElementById(`${teamKey}-summary`);
+            if (summaryEl) {
+                summaryEl.innerHTML = `Predicted: <strong>${points} pts</strong> (${played}/12 played)`;
+            }
+        }
+
+        // Render table
+        const tableContainer = document.getElementById('final-table-top');
+        if (!tableContainer) return;
+
+        tableContainer.innerHTML = '';
+
+        tableData.forEach((team, index) => {
+            const position = index + 1;
+            const rowDiv = document.createElement('div');
+
+            // Determine if relegated
+            let rowClass = 'table-row';
+            if (index === CONFIG.RELEGATION_INDEX) {
+                rowClass += ' relegated';
+            } else if (index <= CONFIG.SAFE_INDEX_THRESHOLD) {
+                rowClass += ' safe';
+            }
+
+            rowDiv.className = rowClass;
+            rowDiv.innerHTML = `
+                <div class="pos">${position}</div>
+                <div class="team-name-table">${team.name}</div>
+                <div class="pts">${team.points}</div>
+                <div class="gd">${team.gd > 0 ? '+' : ''}${team.gd}</div>
+            `;
+
+            tableContainer.appendChild(rowDiv);
+        });
+    }
+
+    resetAll() {
+        this.initializeResults();
+        this.renderFixtures();
+        this.updateTable();
+        if (this.currentMode === 'swipe') {
+            this.generateSwipeCards();
+        }
+    }
+
+    startApp(mode) {
+        const landing = document.getElementById('landing-page');
+        const app = document.getElementById('app-content');
+
+        landing.classList.add('hidden');
+
+        setTimeout(() => {
+            landing.style.display = 'none';
+            app.classList.add('visible');
+            this.setMode(mode);
+        }, 500);
+    }
+
+    showLanding() {
+        const landing = document.getElementById('landing-page');
+        const app = document.getElementById('app-content');
+
+        app.classList.remove('visible');
+
+        setTimeout(() => {
+            landing.style.display = 'flex';
+            // Trigger reflow
+            void landing.offsetWidth;
+            landing.classList.remove('hidden');
+        }, 500);
+    }
+
+    setMode(mode) {
+        this.currentMode = mode;
+
+        // Show/hide appropriate containers
+        document.getElementById('main-grid').style.display = mode === 'fixture' ? 'grid' : 'none';
+        const swipeContainer = document.getElementById('swipe-container');
+        swipeContainer.classList.toggle('active', mode === 'swipe');
+        document.getElementById('fdr-legend').style.display = mode === 'fixture' ? 'block' : 'none';
+
+        // Toggle overflow and active class for locked view
+        if (mode === 'swipe') {
+            document.body.style.overflow = 'hidden';
+            document.body.classList.add('swipe-mode-active');
+            this.resetAll(); // Reset when entering swipe mode to start fresh
+            this.generateSwipeCards();
+            
+            // Accessibility: Focus management
+            // Focus on the card wrapper or the first meaningful element
+            setTimeout(() => {
+               swipeContainer.focus();
+            }, 100);
+        } else {
+            document.body.style.overflow = '';
+            document.body.classList.remove('swipe-mode-active');
+        }
+    }
+
+    generateSwipeCards() {
+        this.swipeCardData = [];
+        this.currentCardIndex = 0;
+
+        // Collect all fixtures from all teams
+        for (let teamKey in this.teams) {
+            this.teams[teamKey].fixtures.forEach((fixture, index) => {
+                this.swipeCardData.push({
+                    teamKey,
+                    fixtureIndex: index,
+                    team: this.teams[teamKey].name,
+                    fixture: fixture
+                });
+            });
+        }
+
+        // Shuffle for variety
+        this.swipeCardData.sort(() => Math.random() - 0.5);
+
+        document.getElementById('swipe-total').textContent = this.swipeCardData.length;
+        this.renderCurrentCard();
+    }
+
+    renderCurrentCard() {
+        const wrapper = document.getElementById('card-wrapper');
+        wrapper.innerHTML = '';
+
+        if (this.currentCardIndex >= this.swipeCardData.length) {
+            // All cards swiped - show dramatic reveal
+            this.showDramaticReveal();
+            return;
+        }
+
+        const cardData = this.swipeCardData[this.currentCardIndex];
+        const card = document.createElement('div');
+        card.className = 'swipe-card';
+        card.id = 'current-card';
+        // Make card focusable for accessibility if needed, though we rely on document keydown
+        card.setAttribute('tabindex', '0');
+
+        const fdrColors = {
+            1: 'background: var(--fdr-1);',
+            2: 'background: var(--fdr-2);',
+            3: 'background: var(--fdr-3); color: #333;',
+            4: 'background: var(--fdr-4);',
+            5: 'background: var(--fdr-5);'
+        };
+
+        card.innerHTML = `
+            <div class="card-team">${cardData.team}</div>
+            <div class="card-fixture">${cardData.fixture.opponent}</div>
+            <div class="card-venue">${cardData.fixture.venue === 'H' ? '🏠 Home' : '✈️ Away'}</div>
+            <div class="card-fdr" style="${fdrColors[cardData.fixture.fdr]}">
+                FDR: ${cardData.fixture.fdr}
+            </div>
+            <div class="card-date">${cardData.fixture.date}</div>
+        `;
+
+        wrapper.appendChild(card);
+        document.getElementById('swipe-current').textContent = this.currentCardIndex + 1;
+
+        // Update back button state
+        const backBtn = document.getElementById('swipe-back-btn');
+        if (backBtn) {
+            backBtn.disabled = this.currentCardIndex === 0;
+        }
+
+        // Add swipe listeners
+        this.addSwipeListeners(card);
+    }
+
+    addSwipeListeners(card) {
+        let startX, startY, currentX, currentY;
+        let isDragging = false;
+
+        const startDrag = (e) => {
+            isDragging = true;
+            card.classList.add('swiping');
+            const touch = e.type === 'touchstart' ? e.touches[0] : e;
+            startX = currentX = touch.clientX;
+            startY = currentY = touch.clientY;
+        };
+
+        const drag = (e) => {
+            if (!isDragging) return;
+            const touch = e.type === 'touchmove' ? e.touches[0] : e;
+            if (e.type === 'touchmove') e.preventDefault();
+            currentX = touch.clientX;
+            currentY = touch.clientY;
+            
+            const deltaX = currentX - startX;
+            const deltaY = currentY - startY;
+            const rotation = deltaX * 0.1;
+            
+            card.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotation}deg)`;
+            
+            // Show visual indicator
+            card.classList.remove('show-win', 'show-draw', 'show-loss');
+            if (Math.abs(deltaX) > 40 || Math.abs(deltaY) > 40) {
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    if (deltaX > 0) {
+                        card.classList.add('show-win');
+                    } else {
+                        card.classList.add('show-loss');
+                    }
+                } else if (deltaY < 0) {
+                    card.classList.add('show-draw');
+                }
             }
         };
 
-        let results = {};
-        let miniTableTimeout;
-
-        function initializeResults() {
-            for (let team in teams) {
-                results[team] = teams[team].fixtures.map(() => null);
-            }
-        }
-
-        function renderFixtures() {
-            for (let teamKey in teams) {
-                const team = teams[teamKey];
-                const container = document.getElementById(`${teamKey}-fixtures`);
-
-                // Check if we need to build from scratch
-                const isInitialBuild = container.children.length === 0;
-
-                if (isInitialBuild) {
-                    team.fixtures.forEach((fixture, index) => {
-                        const fixtureDiv = document.createElement('div');
-                        fixtureDiv.className = `fixture fdr-${fixture.fdr}`;
-                        fixtureDiv.style.animation = `jengaDrop 0.5s ease backwards ${index * 0.05}s`;
-
-                        const result = results[teamKey][index];
-                        if (result) {
-                            fixtureDiv.classList.add(`result-${result}`);
-                        }
-
-                        fixtureDiv.innerHTML = `
-                            <div class="fixture-date">${fixture.date}</div>
-                            <div class="opponent">${fixture.opponent}</div>
-                            <div class="venue ${fixture.venue === 'H' ? 'home' : 'away'}">
-                                ${fixture.venue === 'H' ? 'Home' : 'Away'}
-                            </div>
-                            <div class="result-buttons">
-                                <button class="result-btn ${result === 'W' ? 'active-W' : ''}"
-                                        data-team="${teamKey}" data-index="${index}" data-result="W">W</button>
-                                <button class="result-btn ${result === 'D' ? 'active-D' : ''}"
-                                        data-team="${teamKey}" data-index="${index}" data-result="D">D</button>
-                                <button class="result-btn ${result === 'L' ? 'active-L' : ''}"
-                                        data-team="${teamKey}" data-index="${index}" data-result="L">L</button>
-                            </div>
-                        `;
-                        container.appendChild(fixtureDiv);
-                    });
-                } else {
-                    // Update existing elements to prevent re-animation
-                    team.fixtures.forEach((_, index) => {
-                        updateFixtureUI(teamKey, index, container);
-                    });
-                }
-            }
-        }
-
-        function updateFixtureUI(teamKey, index) {
-            const container = document.getElementById(`${teamKey}-fixtures`);
-            if (!container || !container.children[index]) return;
-
-            const fixtureDiv = container.children[index];
-            const fixture = teams[teamKey].fixtures[index];
-            const result = results[teamKey][index];
-
-            // Update classes
-            fixtureDiv.className = `fixture fdr-${fixture.fdr}`;
-            if (result) fixtureDiv.classList.add(`result-${result}`);
-
-            // Update buttons only
-            const btns = fixtureDiv.getElementsByClassName('result-btn');
-            if (btns.length >= 3) {
-                btns[0].className = `result-btn ${result === 'W' ? 'active-W' : ''}`;
-                btns[1].className = `result-btn ${result === 'D' ? 'active-D' : ''}`;
-                btns[2].className = `result-btn ${result === 'L' ? 'active-L' : ''}`;
-            }
-        }
-
-        function checkAllPredictionsMade() {
-            return Object.values(results).every(teamResults => 
-                teamResults.every(r => r !== null)
-            );
-        }
-
-        function setResult(team, fixtureIndex, result) {
-            const prevStandings = calculateStandings();
-
-            if (results[team][fixtureIndex] === result) {
-                results[team][fixtureIndex] = null;
-            } else {
-                results[team][fixtureIndex] = result;
-            }
-
-            const currStandings = calculateStandings();
-
-            updateFixtureUI(team, fixtureIndex);
-            updateTable(currStandings);
-            showFloatingTable(prevStandings, currStandings);
-
-            if (checkAllPredictionsMade()) {
-                setTimeout(showDramaticReveal, 1000);
-            }
-        }
-
-        function calculatePoints(teamKey) {
-            let points = teams[teamKey].currentPoints;
-            let gd = teams[teamKey].currentGD;
-
-            results[teamKey].forEach((result, index) => {
-                if (result === 'W') {
-                    points += 3;
-                    gd += 2; // Simplified GD calculation
-                } else if (result === 'D') {
-                    points += 1;
-                } else if (result === 'L') {
-                    gd -= 1; // Simplified GD calculation
-                }
-            });
-
-            return { points, gd };
-        }
-
-        function calculateStandings() {
-            const tableData = [];
-
-            for (let teamKey in teams) {
-                const { points, gd } = calculatePoints(teamKey);
-                tableData.push({
-                    teamKey: teamKey,
-                    name: teams[teamKey].name,
-                    points,
-                    gd
-                });
-            }
-
-            // Sort by points, then GD
-            tableData.sort((a, b) => {
-                if (b.points !== a.points) return b.points - a.points;
-                return b.gd - a.gd;
-            });
-
-            return tableData;
-        }
-
-        function updateTable(tableData = null) {
-            if (!tableData) {
-                tableData = calculateStandings();
-            }
-
-            // Update summaries first
-            for (let teamKey in teams) {
-                const { points } = calculatePoints(teamKey);
-                const played = results[teamKey].filter(r => r !== null).length;
-                document.getElementById(`${teamKey}-summary`).innerHTML =
-                    `Predicted: <strong>${points} pts</strong> (${played}/12 played)`;
-            }
-
-            // Render table
-            const tableContainer = document.getElementById('final-table-top');
-            tableContainer.innerHTML = '';
-
-            tableData.forEach((team, index) => {
-                const position = index + 1;
-                const rowDiv = document.createElement('div');
-                
-                // Determine if relegated (18th place)
-                let rowClass = 'table-row';
-                if (position === 4) {
-                    rowClass += ' relegated';
-                } else if (position <= 3) {
-                    rowClass += ' safe';
-                }
-
-                rowDiv.className = rowClass;
-                rowDiv.innerHTML = `
-                    <div class="pos">${position}</div>
-                    <div class="team-name-table">${team.name}</div>
-                    <div class="pts">${team.points}</div>
-                    <div class="gd">${team.gd > 0 ? '+' : ''}${team.gd}</div>
-                `;
-
-                tableContainer.appendChild(rowDiv);
-            });
-        }
-
-        function resetAll() {
-            initializeResults();
-            renderFixtures();
-            updateTable();
-            if (currentMode === 'swipe') {
-                generateSwipeCards();
-            }
-        }
-
-        let currentMode = 'fixture';
-        let swipeCardData = [];
-        let currentCardIndex = 0;
-
-        function startApp(mode) {
-            const landing = document.getElementById('landing-page');
-            const app = document.getElementById('app-content');
-
-            landing.classList.add('hidden');
-
-            setTimeout(() => {
-                landing.style.display = 'none';
-                app.classList.add('visible');
-                setMode(mode);
-            }, 500);
-        }
-
-        function showLanding() {
-            const landing = document.getElementById('landing-page');
-            const app = document.getElementById('app-content');
-
-            app.classList.remove('visible');
-
-            setTimeout(() => {
-                landing.style.display = 'flex';
-                // Trigger reflow
-                void landing.offsetWidth;
-                landing.classList.remove('hidden');
-            }, 500);
-        }
-
-        function setMode(mode) {
-            currentMode = mode;
+        const endDrag = (e) => {
+            if (!isDragging) return;
+            isDragging = false;
             
-            // Show/hide appropriate containers
-            document.getElementById('main-grid').style.display = mode === 'fixture' ? 'grid' : 'none';
-            document.getElementById('swipe-container').classList.toggle('active', mode === 'swipe');
-            document.getElementById('fdr-legend').style.display = mode === 'fixture' ? 'block' : 'none';
-            
-            // Toggle overflow and active class for locked view
-            if (mode === 'swipe') {
-                document.body.style.overflow = 'hidden';
-                document.body.classList.add('swipe-mode-active');
-                resetAll(); // Reset when entering swipe mode to start fresh
-                generateSwipeCards();
-            } else {
-                document.body.style.overflow = '';
-                document.body.classList.remove('swipe-mode-active');
-            }
-        }
+            const deltaX = currentX - startX;
+            const deltaY = currentY - startY;
 
-        function generateSwipeCards() {
-            swipeCardData = [];
-            currentCardIndex = 0;
-            
-            // Collect all fixtures from all teams
-            for (let teamKey in teams) {
-                teams[teamKey].fixtures.forEach((fixture, index) => {
-                    swipeCardData.push({
-                        teamKey,
-                        fixtureIndex: index,
-                        team: teams[teamKey].name,
-                        fixture: fixture
-                    });
-                });
-            }
-            
-            // Shuffle for variety
-            swipeCardData.sort(() => Math.random() - 0.5);
-            
-            document.getElementById('swipe-total').textContent = swipeCardData.length;
-            renderCurrentCard();
-        }
+            // Clear visual indicators
+            card.classList.remove('show-win', 'show-draw', 'show-loss');
 
-        function renderCurrentCard() {
-            const wrapper = document.getElementById('card-wrapper');
-            wrapper.innerHTML = '';
-            
-            if (currentCardIndex >= swipeCardData.length) {
-                // All cards swiped - show dramatic reveal
-                showDramaticReveal();
-                return;
-            }
-            
-            const cardData = swipeCardData[currentCardIndex];
-            const card = document.createElement('div');
-            card.className = 'swipe-card';
-            card.id = 'current-card';
-            
-            const fdrColors = {
-                1: 'background: var(--fdr-1);',
-                2: 'background: var(--fdr-2);',
-                3: 'background: var(--fdr-3); color: #333;',
-                4: 'background: var(--fdr-4);',
-                5: 'background: var(--fdr-5);'
-            };
-            
-            card.innerHTML = `
-                <div class="card-team">${cardData.team}</div>
-                <div class="card-fixture">${cardData.fixture.opponent}</div>
-                <div class="card-venue">${cardData.fixture.venue === 'H' ? '🏠 Home' : '✈️ Away'}</div>
-                <div class="card-fdr" style="${fdrColors[cardData.fixture.fdr]}">
-                    FDR: ${cardData.fixture.fdr}
-                </div>
-                <div class="card-date">${cardData.fixture.date}</div>
-            `;
-            
-            wrapper.appendChild(card);
-            document.getElementById('swipe-current').textContent = currentCardIndex + 1;
-            
-            // Update back button state
-            const backBtn = document.getElementById('swipe-back-btn');
-            if (backBtn) {
-                backBtn.disabled = currentCardIndex === 0;
-            }
-            
-            // Add swipe listeners
-            addSwipeListeners(card);
-        }
-
-        function addSwipeListeners(card) {
-            let startX, startY, currentX, currentY;
-            let isDragging = false;
-            
-            card.addEventListener('mousedown', startDrag);
-            card.addEventListener('touchstart', startDrag);
-            
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('touchmove', drag);
-            
-            document.addEventListener('mouseup', endDrag);
-            document.addEventListener('touchend', endDrag);
-            
-            function startDrag(e) {
-                isDragging = true;
-                card.classList.add('swiping');
-                const touch = e.type === 'touchstart' ? e.touches[0] : e;
-                startX = currentX = touch.clientX;
-                startY = currentY = touch.clientY;
-            }
-            
-            function drag(e) {
-                if (!isDragging) return;
-                const touch = e.type === 'touchmove' ? e.touches[0] : e;
-                if (e.type === 'touchmove') e.preventDefault();
-                currentX = touch.clientX;
-                currentY = touch.clientY;
-                
-                const deltaX = currentX - startX;
-                const deltaY = currentY - startY;
-                const rotation = deltaX * 0.1;
-                
-                card.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotation}deg)`;
-                
-                // Show visual indicator
-                card.classList.remove('show-win', 'show-draw', 'show-loss');
-                if (Math.abs(deltaX) > 40 || Math.abs(deltaY) > 40) {
-                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                        if (deltaX > 0) {
-                            card.classList.add('show-win');
-                        } else {
-                            card.classList.add('show-loss');
-                        }
-                    } else if (deltaY < 0) {
-                        card.classList.add('show-draw');
-                    }
-                }
-            }
-            
-            function endDrag(e) {
-                if (!isDragging) return;
-                isDragging = false;
-                
-                const deltaX = currentX - startX;
-                const deltaY = currentY - startY;
-                
-                // Clear visual indicators
-                card.classList.remove('show-win', 'show-draw', 'show-loss');
-                
-                // Determine swipe direction (reduced threshold to 80px)
-                if (Math.abs(deltaX) > 80 || Math.abs(deltaY) > 80) {
-                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                        // Horizontal swipe
-                        if (deltaX > 0) {
-                            swipeCard('W', 'right');
-                        } else {
-                            swipeCard('L', 'left');
-                        }
+            // Determine swipe direction
+            if (Math.abs(deltaX) > CONFIG.SWIPE_THRESHOLD || Math.abs(deltaY) > CONFIG.SWIPE_THRESHOLD) {
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    // Horizontal swipe
+                    if (deltaX > 0) {
+                        this.swipeCard('W', 'right');
                     } else {
-                        // Vertical swipe
-                        if (deltaY < 0) {
-                            swipeCard('D', 'up');
-                        } else {
-                            card.style.transform = '';
-                            card.classList.remove('swiping');
-                        }
+                        this.swipeCard('L', 'left');
                     }
                 } else {
-                    card.style.transform = '';
-                    card.classList.remove('swiping');
+                    // Vertical swipe
+                    if (deltaY < 0) {
+                        this.swipeCard('D', 'up');
+                    } else {
+                        card.style.transform = '';
+                        card.classList.remove('swiping');
+                    }
                 }
-            }
-        }
-
-        function swipeCard(result, direction) {
-            const cardData = swipeCardData[currentCardIndex];
-            results[cardData.teamKey][cardData.fixtureIndex] = result;
-            
-            const card = document.getElementById('current-card');
-            if (card) {
+            } else {
+                card.style.transform = '';
                 card.classList.remove('swiping');
-                if (direction === 'left') {
-                    card.classList.add('swipe-left');
-                } else if (direction === 'right') {
-                    card.classList.add('swipe-right');
-                } else if (direction === 'up') {
-                    card.classList.add('swipe-up');
-                } else {
-                    // Button click
-                    if (result === 'W') {
-                        card.classList.add('swipe-right');
-                    } else if (result === 'L') {
-                        card.classList.add('swipe-left');
-                    } else {
-                        card.classList.add('swipe-up');
-                    }
-                }
-                
-                setTimeout(() => {
-                    currentCardIndex++;
-                    renderCurrentCard();
-                }, 300);
             }
-        }
+        };
 
-        function goBackSwipe() {
-            if (currentCardIndex > 0) {
-                currentCardIndex--;
-                const cardData = swipeCardData[currentCardIndex];
-                results[cardData.teamKey][cardData.fixtureIndex] = null;
-                renderCurrentCard();
+        card.addEventListener('mousedown', startDrag);
+        card.addEventListener('touchstart', startDrag);
+
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', drag);
+
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchend', endDrag);
+
+        // Store reference to remove listeners if needed (not implemented here for simplicity as cards are destroyed)
+    }
+
+    swipeCard(result, direction) {
+        if (this.currentCardIndex >= this.swipeCardData.length) return;
+
+        const cardData = this.swipeCardData[this.currentCardIndex];
+        this.results[cardData.teamKey][cardData.fixtureIndex] = result;
+
+        const card = document.getElementById('current-card');
+        if (card) {
+            card.classList.remove('swiping');
+            
+            // Determine animation class
+            let animClass = '';
+            if (direction) {
+                if (direction === 'left') animClass = 'swipe-left';
+                else if (direction === 'right') animClass = 'swipe-right';
+                else if (direction === 'up') animClass = 'swipe-up';
+            } else {
+                // Button click fallback
+                if (result === 'W') animClass = 'swipe-right';
+                else if (result === 'L') animClass = 'swipe-left';
+                else animClass = 'swipe-up';
             }
-        }
-
-        function showDramaticReveal() {
-            // Calculate final standings
-            const tableData = calculateStandings();
-
-            // Find relegated team (index 3)
-            const relegatedTeam = tableData[3];
             
-            // Show overlay
-            const overlay = document.getElementById('reveal-overlay');
-            const revealTable = document.getElementById('reveal-table');
-            const revealMessage = document.getElementById('reveal-message');
+            card.classList.add(animClass);
             
-            // Show drum roll first
-            revealMessage.textContent = '🥁 Drum roll please... 🥁';
-            revealMessage.classList.add('drumroll');
-            
-            revealTable.innerHTML = '';
-            tableData.forEach((team, index) => {
-                const position = index + 1;
-                const rowDiv = document.createElement('div');
-                
-                let rowClass = 'reveal-row';
-                if (position === 4) {
-                    rowClass += ' relegated';
-                }
-
-                rowDiv.className = rowClass;
-                rowDiv.innerHTML = `
-                    <div class="reveal-pos">${position}</div>
-                    <div class="reveal-team">${team.name}</div>
-                    <div class="reveal-pts">${team.points} pts</div>
-                `;
-
-                revealTable.appendChild(rowDiv);
-            });
-            
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            
-            // Reveal outcome after 2.5 seconds
             setTimeout(() => {
-                revealMessage.classList.remove('drumroll');
+                this.currentCardIndex++;
+                this.renderCurrentCard();
+            }, 300);
+        }
+    }
 
-                if (relegatedTeam.teamKey === 'spurs') {
-                    revealMessage.innerHTML = "Spurs have absolutely Spursed it!<br>They are RELEGATED! 🍼";
-                } else if (relegatedTeam.teamKey === 'west-ham') {
-                    revealMessage.innerHTML = "West Ham are RELEGATED! 😢";
+    goBackSwipe() {
+        if (this.currentCardIndex > 0) {
+            this.currentCardIndex--;
+            const cardData = this.swipeCardData[this.currentCardIndex];
+            this.results[cardData.teamKey][cardData.fixtureIndex] = null;
+            this.renderCurrentCard();
+        }
+    }
+
+    showDramaticReveal() {
+        // Calculate final standings
+        const tableData = this.calculateStandings();
+
+        // Find relegated team
+        const relegatedTeam = tableData[CONFIG.RELEGATION_INDEX];
+
+        // Show overlay
+        const overlay = document.getElementById('reveal-overlay');
+        const revealTable = document.getElementById('reveal-table');
+        const revealMessage = document.getElementById('reveal-message');
+
+        // Show drum roll first
+        revealMessage.textContent = '🥁 Drum roll please... 🥁';
+        revealMessage.classList.add('drumroll');
+
+        revealTable.innerHTML = '';
+        tableData.forEach((team, index) => {
+            const position = index + 1;
+            const rowDiv = document.createElement('div');
+
+            let rowClass = 'reveal-row';
+            if (index === CONFIG.RELEGATION_INDEX) {
+                rowClass += ' relegated';
+            }
+
+            rowDiv.className = rowClass;
+            rowDiv.innerHTML = `
+                <div class="reveal-pos">${position}</div>
+                <div class="reveal-team">${team.name}</div>
+                <div class="reveal-pts">${team.points} pts</div>
+            `;
+
+            revealTable.appendChild(rowDiv);
+        });
+
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // Reveal outcome after 2.5 seconds
+        setTimeout(() => {
+            revealMessage.classList.remove('drumroll');
+
+            if (relegatedTeam.teamKey === 'spurs') {
+                revealMessage.innerHTML = "Spurs have absolutely Spursed it!<br>They are RELEGATED! 🍼";
+            } else if (relegatedTeam.teamKey === 'west-ham') {
+                revealMessage.innerHTML = "West Ham are RELEGATED! 😢";
+            } else {
+                revealMessage.innerHTML = `${relegatedTeam.name} are RELEGATED!<br>The Hammers SURVIVE! ⚒️`;
+            }
+        }, 2500);
+    }
+
+    closeReveal() {
+        document.getElementById('reveal-overlay').classList.remove('active');
+        document.body.style.overflow = '';
+        this.setMode('fixture');
+    }
+
+    sharePrediction() {
+        const content = document.getElementById('reveal-content-box');
+        const actions = document.getElementById('reveal-actions');
+
+        // Temporarily hide actions for screenshot
+        actions.style.display = 'none';
+        content.style.backgroundColor = '#16213e'; // Ensure background is solid
+
+        html2canvas(content).then(canvas => {
+            // Restore UI
+            actions.style.display = 'flex';
+            content.style.backgroundColor = '';
+
+            canvas.toBlob(blob => {
+                const file = new File([blob], 'my-prediction.png', { type: 'image/png' });
+
+                if (navigator.share && navigator.canShare({ files: [file] })) {
+                    navigator.share({
+                        title: 'Will The Hammers Survive?',
+                        text: 'Check out my relegation prediction! ⚒️',
+                        files: [file]
+                    }).catch(console.error);
                 } else {
-                    revealMessage.innerHTML = `${relegatedTeam.name} are RELEGATED!<br>The Hammers SURVIVE! ⚒️`;
-                }
-            }, 2500);
-        }
-
-        function closeReveal() {
-            document.getElementById('reveal-overlay').classList.remove('active');
-            document.body.style.overflow = '';
-            setMode('fixture');
-        }
-
-        function sharePrediction() {
-            const content = document.getElementById('reveal-content-box');
-            const actions = document.getElementById('reveal-actions');
-
-            // Temporarily hide actions for screenshot
-            actions.style.display = 'none';
-            content.style.backgroundColor = '#16213e'; // Ensure background is solid
-
-            html2canvas(content).then(canvas => {
-                // Restore UI
-                actions.style.display = 'flex';
-                content.style.backgroundColor = '';
-
-                canvas.toBlob(blob => {
-                    const file = new File([blob], 'my-prediction.png', { type: 'image/png' });
-
-                    if (navigator.share && navigator.canShare({ files: [file] })) {
-                        navigator.share({
-                            title: 'Will The Hammers Survive?',
-                            text: 'Check out my relegation prediction! ⚒️',
-                            files: [file]
-                        }).catch(console.error);
-                    } else {
-                        // Fallback to download
-                        const link = document.createElement('a');
-                        link.download = 'my-prediction.png';
-                        link.href = canvas.toDataURL();
-                        link.click();
-                    }
-                });
-            });
-        }
-
-        let isMiniTablePinned = false;
-
-        function toggleMiniTablePin() {
-            isMiniTablePinned = !isMiniTablePinned;
-            const btn = document.getElementById('pin-btn');
-            if(btn) btn.classList.toggle('active', isMiniTablePinned);
-        }
-
-        function toggleMiniTableMinimize() {
-            const table = document.getElementById('floatingTable');
-            const btn = document.getElementById('btn-minimize-table');
-            const isMinimized = table.classList.toggle('minimized');
-
-            if (isMinimized) {
-                btn.textContent = '⬆️';
-                btn.title = 'Expand table';
-                btn.setAttribute('aria-label', 'Expand table');
-            } else {
-                btn.textContent = '⬇️';
-                btn.title = 'Minimize table';
-                btn.setAttribute('aria-label', 'Minimize table');
-            }
-        }
-
-        function showFloatingTable(prevStandings = null, currStandings = null) {
-            const floatingTable = document.getElementById('floatingTable');
-            const miniTableContent = document.getElementById('mini-table-content');
-            
-            // Ensure Pin button exists
-            let header = floatingTable.querySelector('.mini-table-header');
-            if (!header.querySelector('.mini-table-pin')) {
-                const pin = document.createElement('span');
-                pin.className = 'mini-table-pin';
-                pin.id = 'pin-btn';
-                pin.innerHTML = '📌';
-                pin.addEventListener('click', toggleMiniTablePin);
-                header.appendChild(pin);
-            }
-
-            if (!currStandings) {
-                currStandings = calculateStandings();
-            }
-
-            // Create a map for previous positions and ranks
-            const prevRankMap = {};
-            const firstPositions = {};
-
-            if (prevStandings) {
-                prevStandings.forEach((team, index) => {
-                    prevRankMap[team.teamKey] = index + 1;
-                });
-
-                // FLIP: Measure First
-                const rows = miniTableContent.querySelectorAll('.mini-table-row');
-                rows.forEach(row => {
-                    const teamKey = row.dataset.team;
-                    if (teamKey) {
-                        firstPositions[teamKey] = row.getBoundingClientRect().top;
-                    }
-                });
-            }
-
-            // FLIP: Apply Last (Update DOM)
-            currStandings.forEach((team, index) => {
-                const position = index + 1;
-                let row = document.getElementById(`mini-row-${team.teamKey}`);
-
-                if (!row) {
-                    row = document.createElement('div');
-                    row.id = `mini-row-${team.teamKey}`;
-                    row.dataset.team = team.teamKey;
-                }
-                
-                let rowClass = 'mini-table-row';
-                if (position === 4) {
-                    rowClass += ' relegated';
-                } else if (position <= 3) {
-                    rowClass += ' safe';
-                }
-                row.className = rowClass;
-
-                // Determine rank change
-                let rankIndicator = '';
-                if (prevStandings) {
-                    const prevPos = prevRankMap[team.teamKey];
-                    if (prevPos > position) {
-                        rankIndicator = '<span class="rank-up">▲</span>';
-                    } else if (prevPos < position) {
-                        rankIndicator = '<span class="rank-down">▼</span>';
-                    } else {
-                        rankIndicator = '<span class="rank-no-change">-</span>';
-                    }
-                }
-
-                row.innerHTML = `
-                    <div class="mini-pos">${position}${rankIndicator}</div>
-                    <div class="mini-team-name">${team.name}</div>
-                    <div class="mini-pts">${team.points}</div>
-                `;
-
-                miniTableContent.appendChild(row); // Moves to end
-            });
-
-            // FLIP: Invert & Play
-            if (prevStandings) {
-                currStandings.forEach(team => {
-                    const row = document.getElementById(`mini-row-${team.teamKey}`);
-                    const newTop = row.getBoundingClientRect().top;
-                    const oldTop = firstPositions[team.teamKey];
-
-                    if (oldTop !== undefined) {
-                        const deltaY = oldTop - newTop;
-                        if (Math.abs(deltaY) > 0) {
-                            row.style.transform = `translateY(${deltaY}px)`;
-                            row.style.transition = 'none';
-
-                            requestAnimationFrame(() => {
-                                row.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'; // Bouncy effect
-                                row.style.transform = '';
-                            });
-                        }
-                    }
-                });
-            }
-
-            // Show the floating table
-            floatingTable.classList.add('show');
-
-            // Clear existing timeout
-            if (miniTableTimeout) clearTimeout(miniTableTimeout);
-
-            if (!isMiniTablePinned) {
-                miniTableTimeout = setTimeout(() => {
-                    if (!isMiniTablePinned) {
-                        floatingTable.classList.remove('show');
-                    }
-                }, 4000);
-            }
-        }
-
-        function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
-
-        // Handle scroll to top button visibility
-        window.addEventListener('scroll', () => {
-            const scrollToTopBtn = document.getElementById('scrollToTop');
-            if (window.pageYOffset > 300) {
-                scrollToTopBtn.classList.add('show');
-            } else {
-                scrollToTopBtn.classList.remove('show');
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Mode buttons
-            document.getElementById('mode-fixture').addEventListener('click', () => startApp('fixture'));
-            document.getElementById('mode-swipe').addEventListener('click', () => startApp('swipe'));
-
-            // Controls
-            document.getElementById('btn-back-menu').addEventListener('click', showLanding);
-            document.getElementById('btn-reset-all').addEventListener('click', resetAll);
-
-            // Swipe mode controls
-            document.getElementById('btn-exit-swipe').addEventListener('click', () => setMode('fixture'));
-            document.getElementById('swipe-back-btn').addEventListener('click', goBackSwipe);
-            document.getElementById('btn-swipe-loss').addEventListener('click', () => swipeCard('L'));
-            document.getElementById('btn-swipe-draw').addEventListener('click', () => swipeCard('D'));
-            document.getElementById('btn-swipe-win').addEventListener('click', () => swipeCard('W'));
-
-            // Scroll to top
-            document.getElementById('scrollToTop').addEventListener('click', scrollToTop);
-
-            // Reveal overlay
-            document.getElementById('btn-close-reveal').addEventListener('click', closeReveal);
-            document.getElementById('btn-share-prediction').addEventListener('click', sharePrediction);
-
-            // Mini table minimize
-            document.getElementById('btn-minimize-table').addEventListener('click', toggleMiniTableMinimize);
-
-            // Delegation for result buttons
-            document.getElementById('main-grid').addEventListener('click', (e) => {
-                if (e.target.matches('.result-btn')) {
-                    const team = e.target.dataset.team;
-                    const index = parseInt(e.target.dataset.index, 10);
-                    const result = e.target.dataset.result;
-                    setResult(team, index, result);
+                    // Fallback to download
+                    const link = document.createElement('a');
+                    link.download = 'my-prediction.png';
+                    link.href = canvas.toDataURL();
+                    link.click();
                 }
             });
         });
+    }
 
-        // Initialize on load
-        initializeResults();
-        renderFixtures();
-        updateTable();
+    toggleMiniTablePin() {
+        this.isMiniTablePinned = !this.isMiniTablePinned;
+        const btn = document.getElementById('pin-btn');
+        if(btn) btn.classList.toggle('active', this.isMiniTablePinned);
+    }
+
+    toggleMiniTableMinimize() {
+        const table = document.getElementById('floatingTable');
+        const btn = document.getElementById('btn-minimize-table');
+        const isMinimized = table.classList.toggle('minimized');
+
+        if (isMinimized) {
+            btn.textContent = '⬆️';
+            btn.title = 'Expand table';
+            btn.setAttribute('aria-label', 'Expand table');
+        } else {
+            btn.textContent = '⬇️';
+            btn.title = 'Minimize table';
+            btn.setAttribute('aria-label', 'Minimize table');
+        }
+    }
+
+    showFloatingTable(prevStandings = null, currStandings = null) {
+        const floatingTable = document.getElementById('floatingTable');
+        const miniTableContent = document.getElementById('mini-table-content');
+
+        // Ensure Pin button exists
+        let header = floatingTable.querySelector('.mini-table-header');
+        if (!header.querySelector('.mini-table-pin')) {
+            const pin = document.createElement('span');
+            pin.className = 'mini-table-pin';
+            pin.id = 'pin-btn';
+            pin.innerHTML = '📌';
+            header.appendChild(pin);
+        }
+
+        if (!currStandings) {
+            currStandings = this.calculateStandings();
+        }
+
+        // Create a map for previous positions and ranks
+        const prevRankMap = {};
+        const firstPositions = {};
+
+        if (prevStandings) {
+            prevStandings.forEach((team, index) => {
+                prevRankMap[team.teamKey] = index + 1;
+            });
+
+            // FLIP: Measure First
+            const rows = miniTableContent.querySelectorAll('.mini-table-row');
+            rows.forEach(row => {
+                const teamKey = row.dataset.team;
+                if (teamKey) {
+                    firstPositions[teamKey] = row.getBoundingClientRect().top;
+                }
+            });
+        }
+
+        // FLIP: Apply Last (Update DOM)
+        currStandings.forEach((team, index) => {
+            const position = index + 1;
+            let row = document.getElementById(`mini-row-${team.teamKey}`);
+
+            if (!row) {
+                row = document.createElement('div');
+                row.id = `mini-row-${team.teamKey}`;
+                row.dataset.team = team.teamKey;
+            }
+
+            let rowClass = 'mini-table-row';
+            if (index === CONFIG.RELEGATION_INDEX) {
+                rowClass += ' relegated';
+            } else if (index <= CONFIG.SAFE_INDEX_THRESHOLD) {
+                rowClass += ' safe';
+            }
+            row.className = rowClass;
+
+            // Determine rank change
+            let rankIndicator = '';
+            if (prevStandings) {
+                const prevPos = prevRankMap[team.teamKey];
+                if (prevPos > position) {
+                    rankIndicator = '<span class="rank-up">▲</span>';
+                } else if (prevPos < position) {
+                    rankIndicator = '<span class="rank-down">▼</span>';
+                } else {
+                    rankIndicator = '<span class="rank-no-change">-</span>';
+                }
+            }
+
+            row.innerHTML = `
+                <div class="mini-pos">${position}${rankIndicator}</div>
+                <div class="mini-team-name">${team.name}</div>
+                <div class="mini-pts">${team.points}</div>
+            `;
+
+            miniTableContent.appendChild(row); // Moves to end
+        });
+
+        // FLIP: Invert & Play
+        if (prevStandings) {
+            currStandings.forEach(team => {
+                const row = document.getElementById(`mini-row-${team.teamKey}`);
+                const newTop = row.getBoundingClientRect().top;
+                const oldTop = firstPositions[team.teamKey];
+
+                if (oldTop !== undefined) {
+                    const deltaY = oldTop - newTop;
+                    if (Math.abs(deltaY) > 0) {
+                        row.style.transform = `translateY(${deltaY}px)`;
+                        row.style.transition = 'none';
+
+                        requestAnimationFrame(() => {
+                            row.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'; // Bouncy effect
+                            row.style.transform = '';
+                        });
+                    }
+                }
+            });
+        }
+
+        // Show the floating table
+        floatingTable.classList.add('show');
+
+        // Clear existing timeout
+        if (this.miniTableTimeout) clearTimeout(this.miniTableTimeout);
+
+        if (!this.isMiniTablePinned) {
+            this.miniTableTimeout = setTimeout(() => {
+                if (!this.isMiniTablePinned) {
+                    floatingTable.classList.remove('show');
+                }
+            }, CONFIG.MINI_TABLE_TIMEOUT_MS);
+        }
+    }
+
+    scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
+    window.relegationSim = new RelegationSimulator(TEAMS_DATA);
+});
     </script>
 </body>
 </html>
