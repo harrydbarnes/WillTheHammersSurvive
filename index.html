@@ -1574,6 +1574,11 @@ class RelegationSimulator {
         this.miniTableTimeout = null;
         this.isSwipingKey = false; // Debounce flag for keyboard swipe
 
+        // Bind global event handlers to preserve 'this' context and allow removal
+        this.boundHandleSwipeKeydown = this.handleSwipeKeydown.bind(this);
+        this.boundHandlePinClick = this.handlePinClick.bind(this);
+        this.boundHandleScroll = this.handleScroll.bind(this);
+
         this.init();
     }
 
@@ -1584,6 +1589,12 @@ class RelegationSimulator {
         this.updateTable();
     }
 
+    destroy() {
+        document.removeEventListener('keydown', this.boundHandleSwipeKeydown);
+        document.removeEventListener('click', this.boundHandlePinClick);
+        window.removeEventListener('scroll', this.boundHandleScroll);
+    }
+
     initializeResults() {
         for (let team in this.teams) {
             this.results[team] = this.teams[team].fixtures.map(() => null);
@@ -1592,7 +1603,7 @@ class RelegationSimulator {
 
     bindEvents() {
         // Document level keydown for Swipe Mode
-        document.addEventListener('keydown', (e) => this.handleSwipeKeydown(e));
+        document.addEventListener('keydown', this.boundHandleSwipeKeydown);
 
         // Mode buttons
         document.getElementById('mode-fixture').addEventListener('click', () => this.startApp('fixture'));
@@ -1630,21 +1641,25 @@ class RelegationSimulator {
         });
 
         // Delegation for dynamically added pin button
-        document.addEventListener('click', (e) => {
-             if (e.target.matches('#pin-btn')) {
-                 this.toggleMiniTablePin();
-             }
-        });
+        document.addEventListener('click', this.boundHandlePinClick);
 
         // Scroll listener
-        window.addEventListener('scroll', () => {
-             const scrollToTopBtn = document.getElementById('scrollToTop');
-             if (window.pageYOffset > CONFIG.SCROLL_THRESHOLD) {
-                 scrollToTopBtn.classList.add('show');
-             } else {
-                 scrollToTopBtn.classList.remove('show');
-             }
-        });
+        window.addEventListener('scroll', this.boundHandleScroll);
+    }
+
+    handlePinClick(e) {
+        if (e.target.matches('#pin-btn')) {
+            this.toggleMiniTablePin();
+        }
+    }
+
+    handleScroll() {
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+        if (window.pageYOffset > CONFIG.SCROLL_THRESHOLD) {
+            scrollToTopBtn.classList.add('show');
+        } else {
+            scrollToTopBtn.classList.remove('show');
+        }
     }
 
     handleSwipeKeydown(e) {
@@ -2037,7 +2052,7 @@ class RelegationSimulator {
         const endDrag = (e) => {
             if (!isDragging) return;
             isDragging = false;
-            
+
             const deltaX = currentX - startX;
             const deltaY = currentY - startY;
 
