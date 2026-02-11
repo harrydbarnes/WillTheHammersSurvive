@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Will The Hammers Survive? - Premier League Predictor</title>
+    <title>Relegation Simulator 2025/26</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20height='24'%20viewBox='0%200%2024%2024'%20width='24'%20fill='red'%3E%3Cpath%20d='M0%200h24v24H0V0z'%20fill='none'/%3E%3Cpath%20d='M20%2012l-1.41-1.41L13%2016.17V4h-2v12.17l-5.58-5.59L4%2012l8%208%208-8z'/%3E%3C/svg%3E">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfMPFrI18IZB4sZ2KIKL8p2vB2J_T32TchX33iEnT2w/S/1/kOU3v/hS/3T/w==" crossorigin="anonymous"></script>
     <style>
@@ -39,7 +40,7 @@
             font-family: 'Barlow', sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: var(--white);
-            padding: 40px 20px;
+            padding: 40px 20px 200px; /* Added bottom padding for scroll space */
             min-height: 100vh;
         }
 
@@ -496,6 +497,43 @@
 
         .floating-mini-table.show {
             transform: translateX(-50%) translateY(0);
+        }
+
+        /* Minimized State */
+        .floating-mini-table.minimized {
+            transform: translateX(-50%) translateY(0);
+            min-width: auto;
+            width: auto;
+            padding: 10px;
+            border-radius: 50%;
+        }
+
+        .floating-mini-table.minimized #mini-table-content,
+        .floating-mini-table.minimized .mini-table-header,
+        .floating-mini-table.minimized .mini-table-arrow {
+            display: none;
+        }
+
+        .mini-table-minimize-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            z-index: 10;
+            display: inline-block; /* Required for transform to work */
+        }
+
+        .mini-table-minimize-btn:hover {
+            opacity: 1;
+        }
+
+        /* When minimized, show the button prominently (maybe centered) */
+        .floating-mini-table.minimized .mini-table-minimize-btn {
+            position: static;
+            transform: rotate(180deg); /* Flip arrow up to indicate expand */
         }
 
         .floating-mini-table::before {
@@ -1259,19 +1297,19 @@
 <body>
     <div id="landing-page">
         <header>
-            <h1>Will The Hammers Survive?</h1>
+            <h1>Relegation Simulator 2025/26</h1>
             <p class="subtitle">Predict Fixtures & Calculate Relegation</p>
         </header>
 
         <div class="mode-selector">
             <h3>Choose Your Prediction Mode</h3>
             <div class="mode-buttons">
-                <div class="mode-btn" onclick="startApp('fixture')" id="mode-fixture">
+                <div class="mode-btn" id="mode-fixture">
                     <div class="mode-icon">📋</div>
                     <div class="mode-title">Fixture List</div>
                     <div class="mode-desc">Click through all fixtures at your own pace</div>
                 </div>
-                <div class="mode-btn" onclick="startApp('swipe')" id="mode-swipe">
+                <div class="mode-btn" id="mode-swipe">
                     <div class="mode-icon">👆</div>
                     <div class="mode-title">Swipe Mode</div>
                     <div class="mode-desc">Tinder-style swipe & dramatic reveal at the end</div>
@@ -1283,7 +1321,7 @@
     <div id="app-content">
         <div class="container">
             <header class="app-header">
-                <h1>Will The Hammers Survive?</h1>
+                <h1>Relegation Simulator 2025/26</h1>
             </header>
 
             <div class="prediction-table-top">
@@ -1292,8 +1330,8 @@
             </div>
 
             <div class="controls">
-                <button class="control-btn" onclick="showLanding()">Back to Menu</button>
-                <button class="control-btn" onclick="resetAll()">Reset All</button>
+                <button class="control-btn" id="btn-back-menu">Back to Menu</button>
+                <button class="control-btn" id="btn-reset-all">Reset All</button>
             </div>
 
             <div class="fdr-legend" id="fdr-legend">
@@ -1324,9 +1362,9 @@
 
         <!-- Swipe Mode -->
         <div class="swipe-container" id="swipe-container">
-            <button class="swipe-exit-btn" onclick="setMode('fixture')" title="Exit Swipe Mode">✕</button>
+            <button class="swipe-exit-btn" id="btn-exit-swipe" title="Exit Swipe Mode">✕</button>
             <div class="swipe-progress">
-                <button class="swipe-back-btn" id="swipe-back-btn" onclick="goBackSwipe()" title="Go back">←</button>
+                <button class="swipe-back-btn" id="swipe-back-btn" title="Go back">←</button>
                 <div class="swipe-progress-text">
                     <div><span class="current" id="swipe-current">1</span> / <span id="swipe-total">48</span></div>
                     <div style="margin-top: 10px; font-size: 0.9rem;">Swipe or click buttons below</div>
@@ -1338,9 +1376,9 @@
             </div>
 
             <div class="swipe-actions">
-                <button class="swipe-btn loss" onclick="swipeCard('L')" title="Loss">L</button>
-                <button class="swipe-btn draw" onclick="swipeCard('D')" title="Draw">D</button>
-                <button class="swipe-btn win" onclick="swipeCard('W')" title="Win">W</button>
+                <button class="swipe-btn loss" id="btn-swipe-loss" title="Loss">L</button>
+                <button class="swipe-btn draw" id="btn-swipe-draw" title="Draw">D</button>
+                <button class="swipe-btn win" id="btn-swipe-win" title="Win">W</button>
             </div>
 
             <div class="swipe-hint">Swipe left for Loss, up for Draw, right for Win</div>
@@ -1403,13 +1441,14 @@
 
     <!-- Floating Mini Table -->
     <div class="floating-mini-table" id="floatingTable">
+        <span class="mini-table-minimize-btn" id="btn-minimize-table">⬇️</span>
         <div class="mini-table-arrow">📊</div>
         <div class="mini-table-header">Live Standings</div>
         <div id="mini-table-content"></div>
     </div>
 
     <!-- Scroll to Top Button -->
-    <div class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()"></div>
+    <div class="scroll-to-top" id="scrollToTop"></div>
 
     <!-- Dramatic Reveal Overlay -->
     <div class="reveal-overlay" id="reveal-overlay">
@@ -1418,8 +1457,8 @@
             <div class="reveal-message" id="reveal-message"></div>
             <div class="reveal-table" id="reveal-table"></div>
             <div class="reveal-actions" id="reveal-actions">
-                <button class="reveal-btn" onclick="closeReveal()">Close</button>
-                <button class="reveal-btn share-btn" onclick="sharePrediction()">Share Prediction 📸</button>
+                <button class="reveal-btn" id="btn-close-reveal">Close</button>
+                <button class="reveal-btn share-btn" id="btn-share-prediction">Share Prediction 📸</button>
             </div>
         </div>
     </div>
@@ -1505,6 +1544,7 @@
         };
 
         let results = {};
+        let miniTableTimeout;
 
         function initializeResults() {
             for (let team in teams) {
@@ -1539,11 +1579,11 @@
                             </div>
                             <div class="result-buttons">
                                 <button class="result-btn ${result === 'W' ? 'active-W' : ''}"
-                                        onclick="setResult('${teamKey}', ${index}, 'W')">W</button>
+                                        data-team="${teamKey}" data-index="${index}" data-result="W">W</button>
                                 <button class="result-btn ${result === 'D' ? 'active-D' : ''}"
-                                        onclick="setResult('${teamKey}', ${index}, 'D')">D</button>
+                                        data-team="${teamKey}" data-index="${index}" data-result="D">D</button>
                                 <button class="result-btn ${result === 'L' ? 'active-L' : ''}"
-                                        onclick="setResult('${teamKey}', ${index}, 'L')">L</button>
+                                        data-team="${teamKey}" data-index="${index}" data-result="L">L</button>
                             </div>
                         `;
                         container.appendChild(fixtureDiv);
@@ -2029,6 +2069,20 @@
             if(btn) btn.classList.toggle('active', isMiniTablePinned);
         }
 
+        function toggleMiniTableMinimize() {
+            const table = document.getElementById('floatingTable');
+            const btn = document.getElementById('btn-minimize-table');
+            const isMinimized = table.classList.toggle('minimized');
+
+            if (isMinimized) {
+                btn.textContent = '⬆️';
+                btn.title = 'Expand table';
+            } else {
+                btn.textContent = '⬇️';
+                btn.title = 'Minimize table';
+            }
+        }
+
         function showFloatingTable(prevStandings = null, currStandings = null) {
             const floatingTable = document.getElementById('floatingTable');
             const miniTableContent = document.getElementById('mini-table-content');
@@ -2040,7 +2094,7 @@
                 pin.className = 'mini-table-pin';
                 pin.id = 'pin-btn';
                 pin.innerHTML = '📌';
-                pin.onclick = toggleMiniTablePin;
+                pin.addEventListener('click', toggleMiniTablePin);
                 header.appendChild(pin);
             }
 
@@ -2160,6 +2214,43 @@
             } else {
                 scrollToTopBtn.classList.remove('show');
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mode buttons
+            document.getElementById('mode-fixture').addEventListener('click', () => startApp('fixture'));
+            document.getElementById('mode-swipe').addEventListener('click', () => startApp('swipe'));
+
+            // Controls
+            document.getElementById('btn-back-menu').addEventListener('click', showLanding);
+            document.getElementById('btn-reset-all').addEventListener('click', resetAll);
+
+            // Swipe mode controls
+            document.getElementById('btn-exit-swipe').addEventListener('click', () => setMode('fixture'));
+            document.getElementById('swipe-back-btn').addEventListener('click', goBackSwipe);
+            document.getElementById('btn-swipe-loss').addEventListener('click', () => swipeCard('L'));
+            document.getElementById('btn-swipe-draw').addEventListener('click', () => swipeCard('D'));
+            document.getElementById('btn-swipe-win').addEventListener('click', () => swipeCard('W'));
+
+            // Scroll to top
+            document.getElementById('scrollToTop').addEventListener('click', scrollToTop);
+
+            // Reveal overlay
+            document.getElementById('btn-close-reveal').addEventListener('click', closeReveal);
+            document.getElementById('btn-share-prediction').addEventListener('click', sharePrediction);
+
+            // Mini table minimize
+            document.getElementById('btn-minimize-table').addEventListener('click', toggleMiniTableMinimize);
+
+            // Delegation for result buttons
+            document.getElementById('main-grid').addEventListener('click', (e) => {
+                if (e.target.matches('.result-btn')) {
+                    const team = e.target.dataset.team;
+                    const index = parseInt(e.target.dataset.index, 10);
+                    const result = e.target.dataset.result;
+                    setResult(team, index, result);
+                }
+            });
         });
 
         // Initialize on load
