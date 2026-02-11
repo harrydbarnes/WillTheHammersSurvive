@@ -1883,11 +1883,11 @@
                 if (prevStandings) {
                     const prevPos = prevRankMap[team.teamKey];
                     if (prevPos > position) {
-                        rankIndicator = '<span style="color: var(--win); margin-left: 5px; font-size: 0.8em;">▲</span>';
+                        rankIndicator = '<span class="rank-up">▲</span>';
                     } else if (prevPos < position) {
-                        rankIndicator = '<span style="color: var(--loss); margin-left: 5px; font-size: 0.8em;">▼</span>';
+                        rankIndicator = '<span class="rank-down">▼</span>';
                     } else {
-                        rankIndicator = '<span style="color: var(--grey-mid); margin-left: 5px; opacity: 0.5; font-size: 0.8em;">-</span>';
+                        rankIndicator = '<span class="rank-no-change">-</span>';
                     }
                 }
 
