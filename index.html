@@ -2134,10 +2134,10 @@
             floatingTable.classList.add('show');
 
             // Clear existing timeout
-            if (window.miniTableTimeout) clearTimeout(window.miniTableTimeout);
+            if (miniTableTimeout) clearTimeout(miniTableTimeout);
 
             if (!isMiniTablePinned) {
-                window.miniTableTimeout = setTimeout(() => {
+                miniTableTimeout = setTimeout(() => {
                     if (!isMiniTablePinned) {
                         floatingTable.classList.remove('show');
                     }
