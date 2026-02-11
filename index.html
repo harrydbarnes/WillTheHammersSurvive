@@ -1570,12 +1570,9 @@
         }
 
         function checkAllPredictionsMade() {
-            for (let teamKey in results) {
-                if (results[teamKey].some(r => r === null)) {
-                    return false;
-                }
-            }
-            return true;
+            return Object.values(results).every(teamResults => 
+                teamResults.every(r => r !== null)
+            );
         }
 
         function setResult(team, fixtureIndex, result) {
