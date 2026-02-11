@@ -2071,13 +2071,15 @@
 
         function toggleMiniTableMinimize() {
             const table = document.getElementById('floatingTable');
-            table.classList.toggle('minimized');
-
-            // Adjust the minimize button icon based on state
             const btn = document.getElementById('btn-minimize-table');
-            if (table.classList.contains('minimized')) {
-                // It's minimized, so button is now an 'expand' button
-                // Arrow already rotated by CSS, maybe change text if needed
+            const isMinimized = table.classList.toggle('minimized');
+
+            if (isMinimized) {
+                btn.textContent = '⬆️';
+                btn.title = 'Expand table';
+            } else {
+                btn.textContent = '⬇️';
+                btn.title = 'Minimize table';
             }
         }
 
