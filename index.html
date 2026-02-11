@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premier League Fixtures & Relegation Predictor 2025-26</title>
+    <title>Will The Hammers Survive? - Premier League Predictor</title>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -91,6 +92,37 @@
             text-transform: uppercase;
             margin-bottom: 20px;
             text-align: center;
+        }
+
+        #landing-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            transition: opacity 0.5s ease;
+        }
+
+        #landing-page.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #app-content {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            display: none;
+        }
+
+        #app-content.visible {
+            opacity: 1;
+            display: block;
         }
 
         .controls {
@@ -220,6 +252,11 @@
             text-transform: uppercase;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             letter-spacing: 1px;
+        }
+
+        /* Specific white glow for West Ham and Spurs */
+        .fixtures-header h2.text-glow-white {
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
         }
 
         .team-summary {
@@ -403,6 +440,11 @@
             }
         }
 
+        @keyframes jengaDrop {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
         @keyframes pulse {
             0%, 100% {
                 box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4);
@@ -479,7 +521,20 @@
             color: rgba(255, 255, 255, 0.9);
             letter-spacing: 2px;
             font-weight: 600;
+            position: relative; /* For pin positioning */
         }
+
+        .mini-table-pin {
+            position: absolute;
+            top: 0;
+            right: 0;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+            font-size: 1.2rem;
+        }
+        .mini-table-pin:hover { opacity: 1; }
+        .mini-table-pin.active { opacity: 1; text-shadow: 0 0 10px white; transform: rotate(45deg); }
 
         .mini-table-row {
             display: grid;
@@ -659,13 +714,14 @@
         /* Swipe Mode Container */
         .swipe-container {
             display: none;
-            max-width: 600px;
+            max-width: 1000px; /* Increased width to prevent cutoff */
             margin: 0 auto;
             padding: 20px;
             height: 100vh;
-            overflow: hidden;
+            /* overflow: hidden; Removed to prevent clipping */
             flex-direction: column;
             justify-content: center;
+            position: relative;
         }
 
         .swipe-container.active {
@@ -673,27 +729,28 @@
         }
 
         .swipe-exit-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            position: fixed; /* Fixed position to stay on screen */
+            top: 30px;
+            right: 30px;
+            background: var(--loss); /* Red background */
+            border: 2px solid rgba(255, 255, 255, 0.5);
             color: white;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             cursor: pointer;
-            z-index: 10;
-            width: 44px;
-            height: 44px;
+            z-index: 200;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         .swipe-exit-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: rotate(90deg);
+            background: #ff2e43;
+            transform: scale(1.1) rotate(90deg);
         }
 
         /* Hide other elements in swipe mode */
@@ -771,8 +828,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
+            /* Background moved to ::before to fix blurry text */
             border-radius: 24px;
             border: 2px solid rgba(255, 255, 255, 0.2);
             padding: 40px;
@@ -784,6 +840,21 @@
             cursor: grab;
             transition: transform 0.3s ease, opacity 0.3s ease;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            z-index: 1;
+            overflow: hidden; /* Contains the pseudo element */
+        }
+
+        .swipe-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: -1;
         }
 
         .swipe-card::after {
@@ -1067,7 +1138,13 @@
             color: var(--fdr-3);
         }
 
-        .reveal-close {
+        .reveal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .reveal-btn {
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
@@ -1080,9 +1157,14 @@
             transition: all 0.3s ease;
         }
 
-        .reveal-close:hover {
+        .reveal-btn:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
+        }
+
+        .reveal-btn.share-btn {
+            background: var(--win);
+            border-color: var(--win);
         }
 
         @keyframes revealPop {
@@ -1175,40 +1257,48 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="landing-page">
         <header>
-            <h1>Premier League Predictor</h1>
+            <h1>Will The Hammers Survive?</h1>
             <p class="subtitle">Predict Fixtures & Calculate Relegation</p>
         </header>
-
-        <div class="prediction-table-top">
-            <h2>Final Table Prediction</h2>
-            <div id="final-table-top"></div>
-        </div>
-
-        <div class="controls">
-            <button class="control-btn" onclick="resetAll()">Reset All</button>
-        </div>
 
         <div class="mode-selector">
             <h3>Choose Your Prediction Mode</h3>
             <div class="mode-buttons">
-                <div class="mode-btn active" onclick="setMode('fixture')" id="mode-fixture">
+                <div class="mode-btn" onclick="startApp('fixture')" id="mode-fixture">
                     <div class="mode-icon">📋</div>
                     <div class="mode-title">Fixture List</div>
                     <div class="mode-desc">Click through all fixtures at your own pace</div>
                 </div>
-                <div class="mode-btn" onclick="setMode('swipe')" id="mode-swipe">
+                <div class="mode-btn" onclick="startApp('swipe')" id="mode-swipe">
                     <div class="mode-icon">👆</div>
                     <div class="mode-title">Swipe Mode</div>
                     <div class="mode-desc">Tinder-style swipe & dramatic reveal at the end</div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="fdr-legend" id="fdr-legend">
-            <h3>Fixture Difficulty Rating (FDR) | Click W/D/L to Predict Results</h3>
-            <div class="legend-items">
+    <div id="app-content">
+        <div class="container">
+            <header class="app-header">
+                <h1>Will The Hammers Survive?</h1>
+            </header>
+
+            <div class="prediction-table-top">
+                <h2>Will The Hammers Survive?</h2>
+                <div id="final-table-top"></div>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn" onclick="showLanding()">Back to Menu</button>
+                <button class="control-btn" onclick="resetAll()">Reset All</button>
+            </div>
+
+            <div class="fdr-legend" id="fdr-legend">
+                <h3>Fixture Difficulty Rating (FDR) | Click W/D/L to Predict Results</h3>
+                <div class="legend-items">
                 <div class="legend-item">
                     <div class="legend-color" style="background: var(--fdr-1);"></div>
                     <div class="legend-text">1 - Very Easy</div>
@@ -1261,7 +1351,7 @@
                 <!-- WEST HAM -->
                 <div class="team-fixtures">
                     <div class="fixtures-header">
-                        <h2 style="color: var(--claret);">⚒️ West Ham United</h2>
+                        <h2 style="color: var(--claret);" class="text-glow-white">⚒️ West Ham United</h2>
                         <div class="team-summary">
                             <span id="west-ham-summary">Current: 23 pts</span>
                         </div>
@@ -1283,7 +1373,7 @@
                 <!-- TOTTENHAM -->
                 <div class="team-fixtures">
                     <div class="fixtures-header">
-                        <h2 style="color: var(--navy);">⚪ Tottenham Hotspur</h2>
+                        <h2 style="color: var(--navy);" class="text-glow-white">⚪ Tottenham Hotspur</h2>
                         <div class="team-summary">
                             <span id="spurs-summary">Current: 29 pts</span>
                         </div>
@@ -1304,9 +1394,10 @@
             </div>
 
             <div class="prediction-table">
-                <h2>Final Table Prediction</h2>
+                <h2>Will The Hammers Survive?</h2>
                 <div id="final-table"></div>
             </div>
+        </div>
         </div>
     </div>
 
@@ -1322,11 +1413,14 @@
 
     <!-- Dramatic Reveal Overlay -->
     <div class="reveal-overlay" id="reveal-overlay">
-        <div class="reveal-content">
+        <div class="reveal-content" id="reveal-content-box">
             <div class="reveal-title">Final Table</div>
             <div class="reveal-message" id="reveal-message"></div>
             <div class="reveal-table" id="reveal-table"></div>
-            <button class="reveal-close" onclick="closeReveal()">Close</button>
+            <div class="reveal-actions" id="reveal-actions">
+                <button class="reveal-btn" onclick="closeReveal()">Close</button>
+                <button class="reveal-btn share-btn" onclick="sharePrediction()">Share Prediction 📸</button>
+            </div>
         </div>
     </div>
 
@@ -1422,36 +1516,66 @@
             for (let teamKey in teams) {
                 const team = teams[teamKey];
                 const container = document.getElementById(`${teamKey}-fixtures`);
-                container.innerHTML = '';
 
-                team.fixtures.forEach((fixture, index) => {
-                    const fixtureDiv = document.createElement('div');
-                    fixtureDiv.className = `fixture fdr-${fixture.fdr}`;
-                    
-                    const result = results[teamKey][index];
-                    if (result) {
-                        fixtureDiv.classList.add(`result-${result}`);
-                    }
+                // Check if we need to build from scratch
+                const isInitialBuild = container.children.length === 0;
 
-                    fixtureDiv.innerHTML = `
-                        <div class="fixture-date">${fixture.date}</div>
-                        <div class="opponent">${fixture.opponent}</div>
-                        <div class="venue ${fixture.venue === 'H' ? 'home' : 'away'}">
-                            ${fixture.venue === 'H' ? 'Home' : 'Away'}
-                        </div>
-                        <div class="result-buttons">
-                            <button class="result-btn ${result === 'W' ? 'active-W' : ''}" 
-                                    onclick="setResult('${teamKey}', ${index}, 'W')">W</button>
-                            <button class="result-btn ${result === 'D' ? 'active-D' : ''}" 
-                                    onclick="setResult('${teamKey}', ${index}, 'D')">D</button>
-                            <button class="result-btn ${result === 'L' ? 'active-L' : ''}" 
-                                    onclick="setResult('${teamKey}', ${index}, 'L')">L</button>
-                        </div>
-                    `;
+                if (isInitialBuild) {
+                    team.fixtures.forEach((fixture, index) => {
+                        const fixtureDiv = document.createElement('div');
+                        fixtureDiv.className = `fixture fdr-${fixture.fdr}`;
+                        fixtureDiv.style.animation = `jengaDrop 0.5s ease backwards ${index * 0.05}s`;
 
-                    container.appendChild(fixtureDiv);
-                });
+                        const result = results[teamKey][index];
+                        if (result) {
+                            fixtureDiv.classList.add(`result-${result}`);
+                        }
+
+                        fixtureDiv.innerHTML = `
+                            <div class="fixture-date">${fixture.date}</div>
+                            <div class="opponent">${fixture.opponent}</div>
+                            <div class="venue ${fixture.venue === 'H' ? 'home' : 'away'}">
+                                ${fixture.venue === 'H' ? 'Home' : 'Away'}
+                            </div>
+                            <div class="result-buttons">
+                                <button class="result-btn ${result === 'W' ? 'active-W' : ''}"
+                                        onclick="setResult('${teamKey}', ${index}, 'W')">W</button>
+                                <button class="result-btn ${result === 'D' ? 'active-D' : ''}"
+                                        onclick="setResult('${teamKey}', ${index}, 'D')">D</button>
+                                <button class="result-btn ${result === 'L' ? 'active-L' : ''}"
+                                        onclick="setResult('${teamKey}', ${index}, 'L')">L</button>
+                            </div>
+                        `;
+                        container.appendChild(fixtureDiv);
+                    });
+                } else {
+                    // Update existing elements to prevent re-animation
+                    const children = container.children;
+                    team.fixtures.forEach((fixture, index) => {
+                        const fixtureDiv = children[index];
+                        const result = results[teamKey][index];
+
+                        // Update classes
+                        fixtureDiv.className = `fixture fdr-${fixture.fdr}`;
+                        if (result) fixtureDiv.classList.add(`result-${result}`);
+
+                        // Update buttons only
+                        const btns = fixtureDiv.querySelectorAll('.result-btn');
+                        btns[0].className = `result-btn ${result === 'W' ? 'active-W' : ''}`;
+                        btns[1].className = `result-btn ${result === 'D' ? 'active-D' : ''}`;
+                        btns[2].className = `result-btn ${result === 'L' ? 'active-L' : ''}`;
+                    });
+                }
             }
+        }
+
+        function checkAllPredictionsMade() {
+            for (let teamKey in results) {
+                if (results[teamKey].some(r => r === null)) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         function setResult(team, fixtureIndex, result) {
@@ -1468,6 +1592,10 @@
             renderFixtures();
             updateTable(currStandings);
             showFloatingTable(prevStandings, currStandings);
+
+            if (checkAllPredictionsMade()) {
+                setTimeout(showDramaticReveal, 1000);
+            }
         }
 
         function calculatePoints(teamKey) {
@@ -1564,12 +1692,35 @@
         let swipeCardData = [];
         let currentCardIndex = 0;
 
+        function startApp(mode) {
+            const landing = document.getElementById('landing-page');
+            const app = document.getElementById('app-content');
+
+            landing.classList.add('hidden');
+
+            setTimeout(() => {
+                landing.style.display = 'none';
+                app.classList.add('visible');
+                setMode(mode);
+            }, 500);
+        }
+
+        function showLanding() {
+            const landing = document.getElementById('landing-page');
+            const app = document.getElementById('app-content');
+
+            app.classList.remove('visible');
+
+            setTimeout(() => {
+                landing.style.display = 'flex';
+                // Trigger reflow
+                void landing.offsetWidth;
+                landing.classList.remove('hidden');
+            }, 500);
+        }
+
         function setMode(mode) {
             currentMode = mode;
-            
-            // Update button styles
-            document.getElementById('mode-fixture').classList.toggle('active', mode === 'fixture');
-            document.getElementById('mode-swipe').classList.toggle('active', mode === 'swipe');
             
             // Show/hide appropriate containers
             document.getElementById('main-grid').style.display = mode === 'fixture' ? 'grid' : 'none';
@@ -1580,14 +1731,11 @@
             if (mode === 'swipe') {
                 document.body.style.overflow = 'hidden';
                 document.body.classList.add('swipe-mode-active');
+                resetAll(); // Reset when entering swipe mode to start fresh
+                generateSwipeCards();
             } else {
                 document.body.style.overflow = '';
                 document.body.classList.remove('swipe-mode-active');
-            }
-
-            if (mode === 'swipe') {
-                resetAll();
-                generateSwipeCards();
             }
         }
 
@@ -1786,23 +1934,10 @@
 
         function showDramaticReveal() {
             // Calculate final standings
-            const tableData = [];
-            for (let teamKey in teams) {
-                const { points, gd } = calculatePoints(teamKey);
-                tableData.push({
-                    name: teams[teamKey].name,
-                    points,
-                    gd
-                });
-            }
+            const tableData = calculateStandings();
 
-            tableData.sort((a, b) => {
-                if (b.points !== a.points) return b.points - a.points;
-                return b.gd - a.gd;
-            });
-
-            // Find relegated team
-            const relegatedTeam = tableData[3].name;
+            // Find relegated team (index 3)
+            const relegatedTeam = tableData[3];
             
             // Show overlay
             const overlay = document.getElementById('reveal-overlay');
@@ -1836,10 +1971,17 @@
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
             
-            // Reveal relegated team after 2.5 seconds
+            // Reveal outcome after 2.5 seconds
             setTimeout(() => {
                 revealMessage.classList.remove('drumroll');
-                revealMessage.textContent = `${relegatedTeam} have been RELEGATED! 😱`;
+
+                if (relegatedTeam.teamKey === 'spurs') {
+                    revealMessage.innerHTML = "Spurs have absolutely Spursed it!<br>They are RELEGATED! 🍼";
+                } else if (relegatedTeam.teamKey === 'west-ham') {
+                    revealMessage.innerHTML = "West Ham are RELEGATED! 😢";
+                } else {
+                    revealMessage.innerHTML = `${relegatedTeam.name} are RELEGATED!<br>The Hammers SURVIVE! ⚒️`;
+                }
             }, 2500);
         }
 
@@ -1849,27 +1991,95 @@
             setMode('fixture');
         }
 
+        function sharePrediction() {
+            const content = document.getElementById('reveal-content-box');
+            const actions = document.getElementById('reveal-actions');
+
+            // Temporarily hide actions for screenshot
+            actions.style.display = 'none';
+            content.style.backgroundColor = '#16213e'; // Ensure background is solid
+
+            html2canvas(content).then(canvas => {
+                // Restore UI
+                actions.style.display = 'flex';
+                content.style.backgroundColor = '';
+
+                canvas.toBlob(blob => {
+                    const file = new File([blob], 'my-prediction.png', { type: 'image/png' });
+
+                    if (navigator.share && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            title: 'Will The Hammers Survive?',
+                            text: 'Check out my relegation prediction! ⚒️',
+                            files: [file]
+                        }).catch(console.error);
+                    } else {
+                        // Fallback to download
+                        const link = document.createElement('a');
+                        link.download = 'my-prediction.png';
+                        link.href = canvas.toDataURL();
+                        link.click();
+                    }
+                });
+            });
+        }
+
+        let isMiniTablePinned = false;
+
+        function toggleMiniTablePin() {
+            isMiniTablePinned = !isMiniTablePinned;
+            const btn = document.getElementById('pin-btn');
+            if(btn) btn.classList.toggle('active', isMiniTablePinned);
+        }
+
         function showFloatingTable(prevStandings = null, currStandings = null) {
             const floatingTable = document.getElementById('floatingTable');
             const miniTableContent = document.getElementById('mini-table-content');
             
+            // Ensure Pin button exists
+            let header = floatingTable.querySelector('.mini-table-header');
+            if (!header.querySelector('.mini-table-pin')) {
+                const pin = document.createElement('span');
+                pin.className = 'mini-table-pin';
+                pin.id = 'pin-btn';
+                pin.innerHTML = '📌';
+                pin.onclick = toggleMiniTablePin;
+                header.appendChild(pin);
+            }
+
             if (!currStandings) {
                 currStandings = calculateStandings();
             }
 
-            // Create a map for previous positions
+            // Create a map for previous positions and ranks
             const prevRankMap = {};
+            const firstPositions = {};
+
             if (prevStandings) {
                 prevStandings.forEach((team, index) => {
                     prevRankMap[team.teamKey] = index + 1;
                 });
+
+                // FLIP: Measure First
+                const rows = miniTableContent.querySelectorAll('.mini-table-row');
+                rows.forEach(row => {
+                    const teamKey = row.dataset.team;
+                    if (teamKey) {
+                        firstPositions[teamKey] = row.getBoundingClientRect().top;
+                    }
+                });
             }
 
-            // Render mini table
-            miniTableContent.innerHTML = '';
+            // FLIP: Apply Last (Update DOM)
             currStandings.forEach((team, index) => {
                 const position = index + 1;
-                const rowDiv = document.createElement('div');
+                let row = document.getElementById(`mini-row-${team.teamKey}`);
+
+                if (!row) {
+                    row = document.createElement('div');
+                    row.id = `mini-row-${team.teamKey}`;
+                    row.dataset.team = team.teamKey;
+                }
                 
                 let rowClass = 'mini-table-row';
                 if (position === 4) {
@@ -1877,6 +2087,7 @@
                 } else if (position <= 3) {
                     rowClass += ' safe';
                 }
+                row.className = rowClass;
 
                 // Determine rank change
                 let rankIndicator = '';
@@ -1891,23 +2102,50 @@
                     }
                 }
 
-                rowDiv.className = rowClass;
-                rowDiv.innerHTML = `
+                row.innerHTML = `
                     <div class="mini-pos">${position}${rankIndicator}</div>
                     <div class="mini-team-name">${team.name}</div>
                     <div class="mini-pts">${team.points}</div>
                 `;
 
-                miniTableContent.appendChild(rowDiv);
+                miniTableContent.appendChild(row); // Moves to end
             });
+
+            // FLIP: Invert & Play
+            if (prevStandings) {
+                currStandings.forEach(team => {
+                    const row = document.getElementById(`mini-row-${team.teamKey}`);
+                    const newTop = row.getBoundingClientRect().top;
+                    const oldTop = firstPositions[team.teamKey];
+
+                    if (oldTop !== undefined) {
+                        const deltaY = oldTop - newTop;
+                        if (Math.abs(deltaY) > 0) {
+                            row.style.transform = `translateY(${deltaY}px)`;
+                            row.style.transition = 'none';
+
+                            requestAnimationFrame(() => {
+                                row.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'; // Bouncy effect
+                                row.style.transform = '';
+                            });
+                        }
+                    }
+                });
+            }
 
             // Show the floating table
             floatingTable.classList.add('show');
 
-            // Hide after 4 seconds
-            setTimeout(() => {
-                floatingTable.classList.remove('show');
-            }, 4000);
+            // Clear existing timeout
+            if (window.miniTableTimeout) clearTimeout(window.miniTableTimeout);
+
+            if (!isMiniTablePinned) {
+                window.miniTableTimeout = setTimeout(() => {
+                    if (!isMiniTablePinned) {
+                        floatingTable.classList.remove('show');
+                    }
+                }, 4000);
+            }
         }
 
         function scrollToTop() {
