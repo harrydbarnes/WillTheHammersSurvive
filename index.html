@@ -2244,7 +2244,7 @@
             document.getElementById('main-grid').addEventListener('click', (e) => {
                 if (e.target.matches('.result-btn')) {
                     const team = e.target.dataset.team;
-                    const index = parseInt(e.target.dataset.index);
+                    const index = parseInt(e.target.dataset.index, 10);
                     const result = e.target.dataset.result;
                     setResult(team, index, result);
                 }
