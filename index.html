@@ -524,6 +524,11 @@
             transition: opacity 0.3s;
             z-index: 10;
             display: inline-block; /* Required for transform to work */
+            background: none;
+            border: none;
+            padding: 0;
+            font: inherit;
+            color: inherit;
         }
 
         .mini-table-minimize-btn:hover {
@@ -634,6 +639,7 @@
 
         /* Scroll to Top Button */
         .scroll-to-top {
+            padding: 0; /* Reset button padding */
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -1362,9 +1368,9 @@
 
         <!-- Swipe Mode -->
         <div class="swipe-container" id="swipe-container">
-            <button class="swipe-exit-btn" id="btn-exit-swipe" title="Exit Swipe Mode">✕</button>
+            <button class="swipe-exit-btn" id="btn-exit-swipe" title="Exit Swipe Mode" aria-label="Exit Swipe Mode">✕</button>
             <div class="swipe-progress">
-                <button class="swipe-back-btn" id="swipe-back-btn" title="Go back">←</button>
+                <button class="swipe-back-btn" id="swipe-back-btn" title="Go back" aria-label="Go to previous card">←</button>
                 <div class="swipe-progress-text">
                     <div><span class="current" id="swipe-current">1</span> / <span id="swipe-total">48</span></div>
                     <div style="margin-top: 10px; font-size: 0.9rem;">Swipe or click buttons below</div>
@@ -1376,9 +1382,9 @@
             </div>
 
             <div class="swipe-actions">
-                <button class="swipe-btn loss" id="btn-swipe-loss" title="Loss">L</button>
-                <button class="swipe-btn draw" id="btn-swipe-draw" title="Draw">D</button>
-                <button class="swipe-btn win" id="btn-swipe-win" title="Win">W</button>
+                <button class="swipe-btn loss" id="btn-swipe-loss" title="Loss" aria-label="Predict Loss">L</button>
+                <button class="swipe-btn draw" id="btn-swipe-draw" title="Draw" aria-label="Predict Draw">D</button>
+                <button class="swipe-btn win" id="btn-swipe-win" title="Win" aria-label="Predict Win">W</button>
             </div>
 
             <div class="swipe-hint">Swipe left for Loss, up for Draw, right for Win</div>
@@ -1441,14 +1447,14 @@
 
     <!-- Floating Mini Table -->
     <div class="floating-mini-table" id="floatingTable">
-        <span class="mini-table-minimize-btn" id="btn-minimize-table">⬇️</span>
+        <button class="mini-table-minimize-btn" id="btn-minimize-table" aria-label="Minimize table" type="button">⬇️</button>
         <div class="mini-table-arrow">📊</div>
         <div class="mini-table-header">Live Standings</div>
         <div id="mini-table-content"></div>
     </div>
 
     <!-- Scroll to Top Button -->
-    <div class="scroll-to-top" id="scrollToTop"></div>
+    <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top" type="button"></button>
 
     <!-- Dramatic Reveal Overlay -->
     <div class="reveal-overlay" id="reveal-overlay">
@@ -2077,9 +2083,11 @@
             if (isMinimized) {
                 btn.textContent = '⬆️';
                 btn.title = 'Expand table';
+                btn.setAttribute('aria-label', 'Expand table');
             } else {
                 btn.textContent = '⬇️';
                 btn.title = 'Minimize table';
+                btn.setAttribute('aria-label', 'Minimize table');
             }
         }
 
