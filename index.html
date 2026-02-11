@@ -2112,17 +2112,9 @@ class RelegationSimulator {
             card.classList.remove('swiping');
             
             // Determine animation class
-            let animClass = '';
-            if (direction) {
-                if (direction === 'left') animClass = 'swipe-left';
-                else if (direction === 'right') animClass = 'swipe-right';
-                else if (direction === 'up') animClass = 'swipe-up';
-            } else {
-                // Button click fallback
-                if (result === 'W') animClass = 'swipe-right';
-                else if (result === 'L') animClass = 'swipe-left';
-                else animClass = 'swipe-up';
-            }
+            const resultToDirection = { 'W': 'right', 'D': 'up', 'L': 'left' };
+            const finalDirection = direction || resultToDirection[result];
+            const animClass = `swipe-${finalDirection}`;
 
             card.classList.add(animClass);
             
