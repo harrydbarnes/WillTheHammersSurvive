@@ -1478,6 +1478,8 @@ const CONFIG = {
     RELEGATION_INDEX: 3, // 4th place (0-based index) - Bottom team in this mini-league
     SAFE_INDEX_THRESHOLD: 2, // 3rd place and above (0-based index)
     SWIPE_THRESHOLD: 80,
+    SWIPE_VISUAL_THRESHOLD: 40,
+    SWIPE_ANIMATION_MS: 300,
     ANIMATION_DELAY_BASE: 0.05,
     SWIPE_KEY_DEBOUNCE_MS: 300,
     SCROLL_THRESHOLD: 300,
@@ -2013,14 +2015,6 @@ class RelegationSimulator {
         let startX, startY, currentX, currentY;
         let isDragging = false;
 
-        const startDrag = (e) => {
-            isDragging = true;
-            card.classList.add('swiping');
-            const touch = e.type === 'touchstart' ? e.touches[0] : e;
-            startX = currentX = touch.clientX;
-            startY = currentY = touch.clientY;
-        };
-
         const drag = (e) => {
             if (!isDragging) return;
             const touch = e.type === 'touchmove' ? e.touches[0] : e;
@@ -2036,7 +2030,7 @@ class RelegationSimulator {
             
             // Show visual indicator
             card.classList.remove('show-win', 'show-draw', 'show-loss');
-            if (Math.abs(deltaX) > 40 || Math.abs(deltaY) > 40) {
+            if (Math.abs(deltaX) > CONFIG.SWIPE_VISUAL_THRESHOLD || Math.abs(deltaY) > CONFIG.SWIPE_VISUAL_THRESHOLD) {
                 if (Math.abs(deltaX) > Math.abs(deltaY)) {
                     if (deltaX > 0) {
                         card.classList.add('show-win');
@@ -2052,6 +2046,12 @@ class RelegationSimulator {
         const endDrag = (e) => {
             if (!isDragging) return;
             isDragging = false;
+
+            // Remove document listeners when dragging ends
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchend', endDrag);
 
             const deltaX = currentX - startX;
             const deltaY = currentY - startY;
@@ -2083,16 +2083,22 @@ class RelegationSimulator {
             }
         };
 
+        const startDrag = (e) => {
+            isDragging = true;
+            card.classList.add('swiping');
+            const touch = e.type === 'touchstart' ? e.touches[0] : e;
+            startX = currentX = touch.clientX;
+            startY = currentY = touch.clientY;
+
+            // Add document listeners only when dragging starts
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+        };
+
         card.addEventListener('mousedown', startDrag);
         card.addEventListener('touchstart', startDrag);
-
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('touchmove', drag);
-
-        document.addEventListener('mouseup', endDrag);
-        document.addEventListener('touchend', endDrag);
-
-        // Store reference to remove listeners if needed (not implemented here for simplicity as cards are destroyed)
     }
 
     swipeCard(result, direction) {
@@ -2117,13 +2123,13 @@ class RelegationSimulator {
                 else if (result === 'L') animClass = 'swipe-left';
                 else animClass = 'swipe-up';
             }
-            
+
             card.classList.add(animClass);
             
             setTimeout(() => {
                 this.currentCardIndex++;
                 this.renderCurrentCard();
-            }, 300);
+            }, CONFIG.SWIPE_ANIMATION_MS);
         }
     }
 
