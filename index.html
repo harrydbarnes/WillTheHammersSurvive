@@ -509,15 +509,21 @@
         }
 
         .floating-mini-table.minimized #mini-table-content,
-        .floating-mini-table.minimized .mini-table-header,
-        .floating-mini-table.minimized .mini-table-arrow {
+        .floating-mini-table.minimized .mini-table-arrow,
+        .floating-mini-table.minimized .header-text,
+        .floating-mini-table.minimized .mini-table-pin {
             display: none;
+        }
+
+        .floating-mini-table.minimized .mini-table-header {
+            margin: 0;
+            display: block;
         }
 
         .mini-table-minimize-btn {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 0;
+            left: 0;
             cursor: pointer;
             font-size: 1.2rem;
             opacity: 0.7;
@@ -1260,7 +1266,7 @@
             .floating-mini-table {
                 min-width: 300px;
                 padding: 15px 20px;
-                bottom: 90px;
+                bottom: 20px;
             }
 
             .scroll-to-top {
@@ -1447,9 +1453,11 @@
 
     <!-- Floating Mini Table -->
     <div class="floating-mini-table" id="floatingTable">
-        <button class="mini-table-minimize-btn" id="btn-minimize-table" aria-label="Minimize table" type="button"><span aria-hidden="true">⬇️</span></button>
         <div class="mini-table-arrow">📊</div>
-        <div class="mini-table-header">Live Standings</div>
+        <div class="mini-table-header">
+            <button class="mini-table-minimize-btn" id="btn-minimize-table" aria-label="Minimize table" type="button"><span aria-hidden="true">⬇️</span></button>
+            <span class="header-text">Live Standings</span>
+        </div>
         <div id="mini-table-content"></div>
     </div>
 
