@@ -983,7 +983,7 @@
         body.swipe-mode-active .app-header, /* CHANGED: Only hide app header */
         body.swipe-mode-active .prediction-table-top,
         body.swipe-mode-active .controls,
-        body.swipe-mode-active .mode-selector,
+        /* body.swipe-mode-active .mode-selector, REMOVED to fix entry glitch */
         body.swipe-mode-active .fdr-legend,
         body.swipe-mode-active .floating-mini-table {
             display: none;
@@ -2152,8 +2152,8 @@ class RelegationSimulator {
             return;
         }
 
-        this.setMode(mode);
-        this.transitionToApp();
+        // IMPROVED: Use callback pattern for smooth transition
+        this.transitionToApp(() => this.setMode(mode));
     }
     
     handleFixtureStart() {
@@ -2163,13 +2163,15 @@ class RelegationSimulator {
         // Wait for fade out
         setTimeout(() => {
              document.getElementById('settings-modal').style.display = 'none';
-             this.setMode('fixture');
-             this.transitionToApp();
-             this.updateTable();
+             // IMPROVED: Use callback pattern
+             this.transitionToApp(() => {
+                 this.setMode('fixture');
+                 this.updateTable();
+             });
         }, 300);
     }
 
-    transitionToApp() {
+    transitionToApp(callback) { // IMPROVED: Added callback param
         const landing = document.getElementById('landing-page');
         const app = document.getElementById('app-content');
 
@@ -2177,14 +2179,15 @@ class RelegationSimulator {
 
         setTimeout(() => {
             landing.style.display = 'none';
-            app.style.display = ''; // CRITICAL FIX: Clear inline 'none' from showLanding
+            if (callback) callback(); // Execute logic while screen is hidden
+            app.style.display = ''; // CRITICAL FIX: Clear inline 'none'
             app.classList.add('visible');
         }, 500);
     }
 
     showLanding() {
         // FIXED: Clean up swipe mode state properly
-        document.body.classList.remove('swipe-mode-active');
+        // document.body.classList.remove('swipe-mode-active'); // Moved to after fade out
         document.body.style.overflow = 'auto';
         
         // Reset surprise mode default
@@ -2467,43 +2470,30 @@ class RelegationSimulator {
         revealMessage.classList.add('drumroll');
 
         revealTable.innerHTML = '';
-        
-        // Render rows hidden
         tableData.forEach((team, index) => {
+            const position = index + 1;
             const rowDiv = document.createElement('div');
-            rowDiv.className = 'reveal-row'; 
-            rowDiv.id = `reveal-row-${index}`;
-            // Empty initially or use placeholders? Let's use placeholders as per previous instruction, 
-            // or just hide content and reveal? The user said "reveal top team, then...".
-            // We will render placeholders first.
+
+            let rowClass = 'reveal-row';
+            if (index === CONFIG.RELEGATION_INDEX) {
+                rowClass += ' relegated';
+            }
+
+            rowDiv.className = rowClass;
             rowDiv.innerHTML = `
-                <div class="reveal-pos">${index + 1}</div>
-                <div class="reveal-team">???</div>
-                <div class="reveal-pts">?? pts</div>
+                <div class="reveal-pos">${position}</div>
+                <div class="reveal-team">${team.name}</div>
+                <div class="reveal-pts">${team.points} pts</div>
             `;
+
             revealTable.appendChild(rowDiv);
         });
 
         overlay.classList.add('active');
         document.body.style.overflow = 'hidden';
 
-        // Timing Sequence:
-        // 0s: Drum roll start
-        // 1.0s: Reveal 1st
-        // 2.0s: Reveal 2nd
-        // 4.0s: Reveal 3rd
-        // 4.5s: Reveal 4th (Relegated)
-
-        setTimeout(() => { this.updateRevealRow(0, tableData[0]); }, 1000); // 1st Place
-        setTimeout(() => { this.updateRevealRow(1, tableData[1]); }, 2000); // 2nd Place
-        setTimeout(() => { this.updateRevealRow(2, tableData[2]); }, 4000); // 3rd Place
-
+        // Reveal outcome after 2.5 seconds
         setTimeout(() => {
-            // Reveal 4th
-            const row = this.updateRevealRow(3, tableData[3]);
-            row.classList.add('relegated');
-            
-            // Final Message
             revealMessage.classList.remove('drumroll');
 
             if (relegatedTeam.teamKey === 'spurs') {
@@ -2513,26 +2503,13 @@ class RelegationSimulator {
             } else {
                 revealMessage.innerHTML = `${relegatedTeam.name} are RELEGATED!<br>The Hammers SURVIVE! ⚒️`;
             }
-        }, 4500); // 4th Place (0.5s after 3rd)
-    }
-    
-    updateRevealRow(index, teamData) {
-        const row = document.getElementById(`reveal-row-${index}`);
-        if (row) {
-            row.querySelector('.reveal-team').textContent = teamData.name;
-            row.querySelector('.reveal-pts').textContent = `${teamData.points} pts`;
-        }
-        return row;
+        }, 2500);
     }
 
     closeReveal() {
         document.getElementById('reveal-overlay').classList.remove('active');
         document.body.style.overflow = '';
         this.setMode('fixture');
-        // If we were in surprise mode, maybe show table now?
-        // Let's force an update to show the final result in the top table
-        this.surpriseMode = false;
-        this.updateTable();
     }
 
     sharePrediction() {
@@ -2541,47 +2518,30 @@ class RelegationSimulator {
 
         // Temporarily hide actions for screenshot
         actions.style.display = 'none';
-        
-        // Force styling for capture
-        const originalBg = content.style.background;
-        content.style.background = '#16213e'; // Solid background
-        content.style.borderRadius = '0'; // Flat corners for cleaner image? or keep rounded. Keep rounded.
+        content.style.backgroundColor = '#16213e'; // Ensure background is solid
 
-        html2canvas(content, {
-            scale: 2, // High resolution
-            backgroundColor: '#16213e',
-            useCORS: true
-        }).then(canvas => {
+        html2canvas(content).then(canvas => {
             // Restore UI
             actions.style.display = 'flex';
-            content.style.background = originalBg;
+            content.style.backgroundColor = '';
 
             canvas.toBlob(blob => {
-                if (!blob) return;
-                
-                const file = new File([blob], 'my-relegation-prediction.png', { type: 'image/png' });
+                const file = new File([blob], 'my-prediction.png', { type: 'image/png' });
 
-                // Try native share (Mobile/Tablet/Supported Desktop)
-                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                if (navigator.share && navigator.canShare({ files: [file] })) {
                     navigator.share({
                         title: 'Will The Hammers Survive?',
-                        text: 'I just predicted the Premier League relegation battle! ⚽',
+                        text: 'Check out my relegation prediction! ⚒️',
                         files: [file]
-                    }).catch((err) => {
-                        console.error('Share failed', err);
-                        // Fallback to download if share cancels/fails (optional, but good UX)
-                        // this.downloadImage(canvas); 
-                    });
+                    }).catch(console.error);
                 } else {
-                    // Fallback for Desktop (Direct Download)
+                    // Fallback to download
                     const link = document.createElement('a');
-                    link.download = 'my-relegation-prediction.png';
-                    link.href = canvas.toDataURL('image/png');
-                    document.body.appendChild(link);
+                    link.download = 'my-prediction.png';
+                    link.href = canvas.toDataURL();
                     link.click();
-                    document.body.removeChild(link);
                 }
-            }, 'image/png');
+            });
         });
     }
 
