@@ -650,8 +650,8 @@
                         inset 0 1px 0 rgba(255, 255, 255, 0.1);
             z-index: 1000;
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            width: 90%; 
-            max-width: 400px;
+            width: 85%; /* IMPROVED: Narrower on mobile */
+            max-width: 340px; /* IMPROVED: Max width reduced */
         }
 
         .floating-mini-table.show {
@@ -1799,7 +1799,9 @@ class RelegationSimulator {
         // Settings Modal Close Button
         document.getElementById('btn-close-settings').addEventListener('click', () => {
             document.getElementById('settings-modal').classList.remove('show');
-            this.showLanding(); // Return to landing on close
+            // If they close without choosing, we go back to landing? Or just sit there?
+            // User requested closing goes back to menu (Landing) essentially canceling start
+            this.showLanding(); 
         });
 
         // Controls
@@ -2118,7 +2120,11 @@ class RelegationSimulator {
     startApp(mode) {
         // Intercept fixture mode to show settings
         if (mode === 'fixture') {
-            document.getElementById('settings-modal').classList.add('show');
+            const modal = document.getElementById('settings-modal');
+            modal.style.display = 'flex';
+            // Force reflow
+            void modal.offsetWidth; 
+            modal.classList.add('show');
             return;
         }
 
@@ -2130,12 +2136,13 @@ class RelegationSimulator {
         const isSurprise = document.getElementById('surprise-mode-toggle').checked;
         this.surpriseMode = isSurprise;
         document.getElementById('settings-modal').classList.remove('show');
-        
-        this.setMode('fixture');
-        this.transitionToApp();
-        
-        // Initial refresh to hide/show based on setting
-        this.updateTable();
+        // Wait for fade out
+        setTimeout(() => {
+             document.getElementById('settings-modal').style.display = 'none';
+             this.setMode('fixture');
+             this.transitionToApp();
+             this.updateTable();
+        }, 300);
     }
 
     transitionToApp() {
@@ -2153,7 +2160,7 @@ class RelegationSimulator {
     showLanding() {
         // FIXED: Clean up swipe mode state properly
         document.body.classList.remove('swipe-mode-active');
-        document.body.style.overflow = '';
+        document.body.style.overflow = 'auto';
         
         // Reset surprise mode default
         this.surpriseMode = false;
@@ -2162,6 +2169,7 @@ class RelegationSimulator {
         const landing = document.getElementById('landing-page');
         const app = document.getElementById('app-content');
 
+        // Fade out app content
         app.classList.remove('visible');
 
         setTimeout(() => {
@@ -2193,7 +2201,7 @@ class RelegationSimulator {
                swipeContainer.focus();
             }, 100);
         } else {
-            document.body.style.overflow = '';
+            document.body.style.overflow = 'auto'; // ensure scroll
             document.body.classList.remove('swipe-mode-active');
         }
     }
@@ -2549,11 +2557,9 @@ class RelegationSimulator {
 
         if (isMinimized) {
             if (!isAuto) this.minimizeCount++; // Only increment on manual close
-            btn.textContent = '⬆️'; // No text needed if rotated, but good for a11y? No visually hidden.
             btn.title = 'Expand table';
             btn.setAttribute('aria-label', 'Expand table');
         } else {
-            btn.textContent = '▼'; // Simple arrow
             btn.title = 'Minimize table';
             btn.setAttribute('aria-label', 'Minimize table');
         }
@@ -2571,7 +2577,6 @@ class RelegationSimulator {
         // NEW: Auto-expand logic based on 3-strike rule
         if (this.minimizeCount < 3) {
             floatingTable.classList.remove('minimized');
-            document.getElementById('btn-minimize-table').textContent = '▼'; 
         }
 
         const miniTableContent = document.getElementById('mini-table-content');
