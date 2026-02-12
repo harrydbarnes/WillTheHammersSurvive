@@ -475,61 +475,57 @@
             }
         }
 
-        /* Floating Mini Table - Liquid Glass Design */
+        /* Floating Mini Table - Drawer Design */
         .floating-mini-table {
             position: fixed;
-            bottom: 10px;
+            bottom: 0; /* Align to bottom for drawer effect */
             left: 50%;
             transform: translateX(-50%) translateY(150%);
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-radius: 24px;
-            padding: 20px 25px;
+            border-radius: 24px 24px 0 0; /* Rounded top only */
+            padding: 15px 25px 30px 25px; /* Extra bottom padding */
             border: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37),
+            border-bottom: none;
+            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.37),
                         inset 0 1px 0 rgba(255, 255, 255, 0.1);
             z-index: 1000;
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* Drawer slide effect */
             min-width: 350px;
             max-width: 90vw;
+            width: 100%;
+            max-width: 500px;
         }
 
         .floating-mini-table.show {
             transform: translateX(-50%) translateY(0);
         }
 
-        /* Minimized State */
+        /* Minimized State - Peeking Drawer */
         .floating-mini-table.minimized {
-            transform: translateX(-50%) translateY(0);
-            min-width: auto;
-            width: auto;
-            padding: 10px;
-            border-radius: 50%;
+            transform: translateX(-50%) translateY(calc(100% - 50px)); /* Hide content, keep header visible */
+            cursor: pointer; /* Indicate clickable */
         }
 
-        .floating-mini-table.minimized #mini-table-content,
+        /* Hide content/pin but keep layout in minimize? No, keep it in DOM but hidden by overflow if needed */
+        /* Actually with the translation logic, we don't need to hide children display:none, just slide it down */
+        
         .floating-mini-table.minimized .mini-table-arrow,
-        .floating-mini-table.minimized .header-text,
-        .floating-mini-table.minimized .mini-table-pin {
-            display: none;
-        }
-
-        .floating-mini-table.minimized .mini-table-header {
-            margin: 0;
-            display: block;
+        .floating-mini-table.minimized #mini-table-content {
+            /* Optional: fade them out or just let them slide off screen */
+            /* opacity: 0.5; */
         }
 
         .mini-table-minimize-btn {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 15px;
+            left: 20px;
             cursor: pointer;
             font-size: 1.2rem;
             opacity: 0.7;
             transition: opacity 0.3s;
             z-index: 10;
-            display: inline-block; /* Required for transform to work */
             background: none;
             border: none;
             padding: 0;
@@ -541,10 +537,9 @@
             opacity: 1;
         }
 
-        /* When minimized, show the button prominently (maybe centered) */
         .floating-mini-table.minimized .mini-table-minimize-btn {
-            position: static;
-            transform: rotate(180deg); /* Flip arrow up to indicate expand */
+             /* Flip arrow up */
+            transform: rotate(180deg);
         }
 
         .floating-mini-table::before {
@@ -554,11 +549,12 @@
             left: 0;
             right: 0;
             bottom: 0;
-            border-radius: 24px;
-            background: linear-gradient(135deg, 
+            border-radius: 24px 24px 0 0;
+            background: linear-gradient(180deg, 
                 rgba(255, 255, 255, 0.1) 0%, 
-                rgba(255, 255, 255, 0.05) 100%);
+                rgba(255, 255, 255, 0.02) 100%);
             z-index: -1;
+            pointer-events: none;
         }
 
         .mini-table-header {
@@ -570,7 +566,9 @@
             color: rgba(255, 255, 255, 0.9);
             letter-spacing: 2px;
             font-weight: 600;
-            position: relative; /* For pin positioning */
+            position: relative;
+            padding-top: 5px;
+            cursor: pointer; /* Header is clickable to toggle */
         }
 
         .mini-table-pin {
@@ -1584,6 +1582,7 @@ class RelegationSimulator {
         this.isMiniTablePinned = false;
         this.miniTableTimeout = null;
         this.isSwipingKey = false; // Debounce flag for keyboard swipe
+        this.minimizeCount = 0; // NEW: Track how many times user minimized
 
         // Bind global event handlers to preserve 'this' context and allow removal
         this.boundHandleSwipeKeydown = this.handleSwipeKeydown.bind(this);
@@ -1641,6 +1640,13 @@ class RelegationSimulator {
 
         // Mini table minimize
         document.getElementById('btn-minimize-table').addEventListener('click', () => this.toggleMiniTableMinimize());
+        
+        // NEW: Click on mini table header to toggle
+        document.querySelector('.mini-table-header').addEventListener('click', (e) => {
+            if (e.target.closest('.mini-table-minimize-btn')) return; // let button handler do it
+            const table = document.getElementById('floatingTable');
+            this.toggleMiniTableMinimize();
+        });
 
         // Delegation for result buttons
         document.getElementById('main-grid').addEventListener('click', (e) => {
@@ -1910,6 +1916,10 @@ class RelegationSimulator {
     }
 
     showLanding() {
+        // FIXED: Clean up swipe mode state properly
+        document.body.classList.remove('swipe-mode-active');
+        document.body.style.overflow = '';
+        
         const landing = document.getElementById('landing-page');
         const app = document.getElementById('app-content');
 
@@ -2144,59 +2154,49 @@ class RelegationSimulator {
         }
     }
 
-    // UPDATED REVEAL LOGIC
     showDramaticReveal() {
+        // Calculate final standings
         const tableData = this.calculateStandings();
+
+        // Find relegated team
         const relegatedTeam = tableData[CONFIG.RELEGATION_INDEX];
-        
-        // 1. Setup UI
+
+        // Show overlay
         const overlay = document.getElementById('reveal-overlay');
         const revealTable = document.getElementById('reveal-table');
         const revealMessage = document.getElementById('reveal-message');
-        
-        // 2. Initial State: CENSOR DATA
-        revealMessage.textContent = '🥁 Drum roll please...';
+
+        // Show drum roll first
+        revealMessage.textContent = '🥁 Drum roll please... 🥁';
         revealMessage.classList.add('drumroll');
+
         revealTable.innerHTML = '';
-        
-        // Render rows with "???" placeholders
         tableData.forEach((team, index) => {
-            const row = document.createElement('div');
-            row.className = 'reveal-row'; // Add 'relegated' class later
-            row.id = `reveal-row-${index}`;
-            row.innerHTML = `
-                <div class="reveal-pos">${index + 1}</div>
-                <div class="reveal-team">???</div>
-                <div class="reveal-pts">??</div>
+            const position = index + 1;
+            const rowDiv = document.createElement('div');
+
+            let rowClass = 'reveal-row';
+            if (index === CONFIG.RELEGATION_INDEX) {
+                rowClass += ' relegated';
+            }
+
+            rowDiv.className = rowClass;
+            rowDiv.innerHTML = `
+                <div class="reveal-pos">${position}</div>
+                <div class="reveal-team">${team.name}</div>
+                <div class="reveal-pts">${team.points} pts</div>
             `;
-            revealTable.appendChild(row);
+
+            revealTable.appendChild(rowDiv);
         });
 
         overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
 
-        // 3. Sequential Reveal Sequence
-        // Reveal 1st Place (1.0s)
+        // Reveal outcome after 2.5 seconds
         setTimeout(() => {
-            this.updateRevealRow(0, tableData[0]);
-        }, 1000);
-
-        // Reveal 2nd Place (2.0s)
-        setTimeout(() => {
-            this.updateRevealRow(1, tableData[1]);
-        }, 2000);
-
-        // Reveal 3rd Place (3.5s)
-        setTimeout(() => {
-            this.updateRevealRow(2, tableData[2]);
-        }, 3500);
-
-        // Reveal 4th Place / Relegated (4.0s - Fast follow)
-        setTimeout(() => {
-            const row = this.updateRevealRow(3, tableData[3]);
-            row.classList.add('relegated'); // Add red styling now
-            
-            // Show Final Message
             revealMessage.classList.remove('drumroll');
+
             if (relegatedTeam.teamKey === 'spurs') {
                 revealMessage.innerHTML = "Spurs have absolutely Spursed it!<br>They are RELEGATED! 🍼";
             } else if (relegatedTeam.teamKey === 'west-ham') {
@@ -2204,17 +2204,7 @@ class RelegationSimulator {
             } else {
                 revealMessage.innerHTML = `${relegatedTeam.name} are RELEGATED!<br>The Hammers SURVIVE! ⚒️`;
             }
-        }, 4000);
-    }
-
-    // Helper function for the reveal
-    updateRevealRow(index, teamData) {
-        const row = document.getElementById(`reveal-row-${index}`);
-        if (row) {
-            row.querySelector('.reveal-team').textContent = teamData.name;
-            row.querySelector('.reveal-pts').textContent = `${teamData.points} pts`;
-        }
-        return row;
+        }, 2500);
     }
 
     closeReveal() {
@@ -2223,27 +2213,18 @@ class RelegationSimulator {
         this.setMode('fixture');
     }
 
-    // UPDATED SHARE FUNCTION
     sharePrediction() {
         const content = document.getElementById('reveal-content-box');
         const actions = document.getElementById('reveal-actions');
 
         // Temporarily hide actions for screenshot
         actions.style.display = 'none';
-        
-        // Save original styles
-        const originalBg = content.style.background;
-        const originalBackdrop = content.style.backdropFilter;
-        
-        // Force opaque background and remove blur for clean capture
-        content.style.background = '#16213e';
-        content.style.backdropFilter = 'none';
+        content.style.backgroundColor = '#16213e'; // Ensure background is solid
 
-        html2canvas(content, { scale: 2 }).then(canvas => {
+        html2canvas(content).then(canvas => {
             // Restore UI
             actions.style.display = 'flex';
-            content.style.background = originalBg;
-            content.style.backdropFilter = originalBackdrop;
+            content.style.backgroundColor = '';
 
             canvas.toBlob(blob => {
                 const file = new File([blob], 'my-prediction.png', { type: 'image/png' });
@@ -2271,12 +2252,13 @@ class RelegationSimulator {
         if(btn) btn.classList.toggle('active', this.isMiniTablePinned);
     }
 
-    toggleMiniTableMinimize() {
+    toggleMiniTableMinimize(isAuto = false) {
         const table = document.getElementById('floatingTable');
         const btn = document.getElementById('btn-minimize-table');
         const isMinimized = table.classList.toggle('minimized');
 
         if (isMinimized) {
+            if (!isAuto) this.minimizeCount++; // Only increment on manual close
             btn.textContent = '⬆️';
             btn.title = 'Expand table';
             btn.setAttribute('aria-label', 'Expand table');
@@ -2289,6 +2271,13 @@ class RelegationSimulator {
 
     showFloatingTable(prevStandings = null, currStandings = null) {
         const floatingTable = document.getElementById('floatingTable');
+        
+        // NEW: Auto-expand logic based on 3-strike rule
+        if (this.minimizeCount < 3) {
+            floatingTable.classList.remove('minimized');
+            document.getElementById('btn-minimize-table').textContent = '⬇️';
+        }
+
         const miniTableContent = document.getElementById('mini-table-content');
 
         // Ensure Pin button exists
