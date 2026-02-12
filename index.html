@@ -962,12 +962,12 @@
         }
 
         /* Hide other elements in swipe mode */
-        body.swipe-mode-active header,
+        body.swipe-mode-active .app-header, /* CHANGED: Only hide app header */
         body.swipe-mode-active .prediction-table-top,
         body.swipe-mode-active .controls,
         body.swipe-mode-active .mode-selector,
         body.swipe-mode-active .fdr-legend,
-        body.swipe-mode-active .floating-mini-table { /* Added .floating-mini-table here */
+        body.swipe-mode-active .floating-mini-table {
             display: none;
         }
 
@@ -2151,15 +2151,17 @@ class RelegationSimulator {
 
         setTimeout(() => {
             landing.style.display = 'none';
+            app.style.display = ''; // CRITICAL FIX: Clear inline 'none' from showLanding
             app.classList.add('visible');
         }, 500);
     }
 
     showLanding() {
-        // 1. Clean up swipe mode stuff
+        // FIXED: Clean up swipe mode state properly
         document.body.classList.remove('swipe-mode-active');
         document.body.style.overflow = 'auto';
         
+        // Reset surprise mode default
         this.surpriseMode = false;
         document.getElementById('surprise-mode-toggle').checked = false;
         
