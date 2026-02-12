@@ -778,18 +778,17 @@
             display: flex;
         }
 
+        /* Updated Swipe Exit Button - Integrated into layout */
         .swipe-exit-btn {
-            position: fixed; /* Fixed position to stay on screen */
-            top: 30px;
-            right: 30px;
-            background: var(--loss); /* Red background */
+            position: relative;
+            margin-left: auto; /* Pushes it to the right in flexbox */
+            background: var(--loss);
             border: 2px solid rgba(255, 255, 255, 0.5);
             color: white;
             font-size: 1.5rem;
             cursor: pointer;
-            z-index: 200;
-            width: 56px;
-            height: 56px;
+            width: 44px; /* Matches back button size */
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -803,12 +802,18 @@
             transform: scale(1.1) rotate(90deg);
         }
 
+        /* Added Focus Fix */
+        #swipe-container:focus {
+            outline: none;
+        }
+
         /* Hide other elements in swipe mode */
         body.swipe-mode-active header,
         body.swipe-mode-active .prediction-table-top,
         body.swipe-mode-active .controls,
         body.swipe-mode-active .mode-selector,
-        body.swipe-mode-active .fdr-legend {
+        body.swipe-mode-active .fdr-legend,
+        body.swipe-mode-active .floating-mini-table { /* Added .floating-mini-table here */
             display: none;
         }
 
@@ -872,6 +877,8 @@
             height: 500px;
             perspective: 1000px;
             max-height: 60vh;
+            max-width: 450px; /* Constrain width on desktop */
+            margin: 0 auto;   /* Center it */
         }
 
         .swipe-card {
@@ -1372,20 +1379,18 @@
             </div>
         </div>
 
-        <!-- Swipe Mode -->
         <div class="swipe-container" id="swipe-container" tabindex="-1">
-            <button class="swipe-exit-btn" id="btn-exit-swipe" title="Exit Swipe Mode" aria-label="Exit Swipe Mode"><span aria-hidden="true">✕</span></button>
             <div class="swipe-progress">
                 <button class="swipe-back-btn" id="swipe-back-btn" title="Go back" aria-label="Go to previous card"><span aria-hidden="true">←</span></button>
                 <div class="swipe-progress-text">
                     <div><span class="current" id="swipe-current">1</span> / <span id="swipe-total">48</span></div>
                     <div style="margin-top: 10px; font-size: 0.9rem;">Swipe or click buttons below</div>
                 </div>
+                <button class="swipe-exit-btn" id="btn-exit-swipe" title="Exit Swipe Mode" aria-label="Exit Swipe Mode"><span aria-hidden="true">✕</span></button>
             </div>
             
             <div class="swipe-card-wrapper" id="card-wrapper">
-                <!-- Cards will be generated here -->
-            </div>
+                </div>
 
             <div class="swipe-actions">
                 <button class="swipe-btn loss" id="btn-swipe-loss" title="Loss" aria-label="Predict Loss"><span aria-hidden="true">L</span></button>
@@ -1398,7 +1403,6 @@
 
         <div class="main-grid" id="main-grid">
             <div class="fixtures-column">
-                <!-- WEST HAM -->
                 <div class="team-fixtures">
                     <div class="fixtures-header">
                         <h2 class="text-glow-white west-ham-header">⚒️ West Ham United</h2>
@@ -1409,7 +1413,6 @@
                     <div class="fixture-grid" id="west-ham-fixtures"></div>
                 </div>
 
-                <!-- LEEDS -->
                 <div class="team-fixtures">
                     <div class="fixtures-header">
                         <h2 style="color: var(--sky-blue);">⚪ Leeds United</h2>
@@ -1420,7 +1423,6 @@
                     <div class="fixture-grid" id="leeds-fixtures"></div>
                 </div>
 
-                <!-- TOTTENHAM -->
                 <div class="team-fixtures">
                     <div class="fixtures-header">
                         <h2 style="color: var(--navy);" class="text-glow-white">⚪ Tottenham Hotspur</h2>
@@ -1431,7 +1433,6 @@
                     <div class="fixture-grid" id="spurs-fixtures"></div>
                 </div>
 
-                <!-- NOTTINGHAM FOREST -->
                 <div class="team-fixtures">
                     <div class="fixtures-header">
                         <h2 style="color: var(--forest-red);">🌲 Nottingham Forest</h2>
@@ -1451,7 +1452,6 @@
         </div>
     </div>
 
-    <!-- Floating Mini Table -->
     <div class="floating-mini-table" id="floatingTable">
         <div class="mini-table-arrow">📊</div>
         <div class="mini-table-header">
@@ -1461,10 +1461,8 @@
         <div id="mini-table-content"></div>
     </div>
 
-    <!-- Scroll to Top Button -->
     <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top" type="button"></button>
 
-    <!-- Dramatic Reveal Overlay -->
     <div class="reveal-overlay" id="reveal-overlay">
         <div class="reveal-content" id="reveal-content-box">
             <div class="reveal-title">Final Table</div>
@@ -2142,49 +2140,59 @@ class RelegationSimulator {
         }
     }
 
+    // UPDATED REVEAL LOGIC
     showDramaticReveal() {
-        // Calculate final standings
         const tableData = this.calculateStandings();
-
-        // Find relegated team
         const relegatedTeam = tableData[CONFIG.RELEGATION_INDEX];
-
-        // Show overlay
+        
+        // 1. Setup UI
         const overlay = document.getElementById('reveal-overlay');
         const revealTable = document.getElementById('reveal-table');
         const revealMessage = document.getElementById('reveal-message');
-
-        // Show drum roll first
-        revealMessage.textContent = '🥁 Drum roll please... 🥁';
+        
+        // 2. Initial State: CENSOR DATA
+        revealMessage.textContent = '🥁 Drum roll please...';
         revealMessage.classList.add('drumroll');
-
         revealTable.innerHTML = '';
+        
+        // Render rows with "???" placeholders
         tableData.forEach((team, index) => {
-            const position = index + 1;
-            const rowDiv = document.createElement('div');
-
-            let rowClass = 'reveal-row';
-            if (index === CONFIG.RELEGATION_INDEX) {
-                rowClass += ' relegated';
-            }
-
-            rowDiv.className = rowClass;
-            rowDiv.innerHTML = `
-                <div class="reveal-pos">${position}</div>
-                <div class="reveal-team">${team.name}</div>
-                <div class="reveal-pts">${team.points} pts</div>
+            const row = document.createElement('div');
+            row.className = 'reveal-row'; // Add 'relegated' class later
+            row.id = `reveal-row-${index}`;
+            row.innerHTML = `
+                <div class="reveal-pos">${index + 1}</div>
+                <div class="reveal-team">???</div>
+                <div class="reveal-pts">??</div>
             `;
-
-            revealTable.appendChild(rowDiv);
+            revealTable.appendChild(row);
         });
 
         overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
 
-        // Reveal outcome after 2.5 seconds
+        // 3. Sequential Reveal Sequence
+        // Reveal 1st Place (1.0s)
         setTimeout(() => {
-            revealMessage.classList.remove('drumroll');
+            this.updateRevealRow(0, tableData[0]);
+        }, 1000);
 
+        // Reveal 2nd Place (2.0s)
+        setTimeout(() => {
+            this.updateRevealRow(1, tableData[1]);
+        }, 2000);
+
+        // Reveal 3rd Place (3.5s)
+        setTimeout(() => {
+            this.updateRevealRow(2, tableData[2]);
+        }, 3500);
+
+        // Reveal 4th Place / Relegated (4.0s - Fast follow)
+        setTimeout(() => {
+            const row = this.updateRevealRow(3, tableData[3]);
+            row.classList.add('relegated'); // Add red styling now
+            
+            // Show Final Message
+            revealMessage.classList.remove('drumroll');
             if (relegatedTeam.teamKey === 'spurs') {
                 revealMessage.innerHTML = "Spurs have absolutely Spursed it!<br>They are RELEGATED! 🍼";
             } else if (relegatedTeam.teamKey === 'west-ham') {
@@ -2192,7 +2200,17 @@ class RelegationSimulator {
             } else {
                 revealMessage.innerHTML = `${relegatedTeam.name} are RELEGATED!<br>The Hammers SURVIVE! ⚒️`;
             }
-        }, 2500);
+        }, 4000);
+    }
+
+    // Helper function for the reveal
+    updateRevealRow(index, teamData) {
+        const row = document.getElementById(`reveal-row-${index}`);
+        if (row) {
+            row.querySelector('.reveal-team').textContent = teamData.name;
+            row.querySelector('.reveal-pts').textContent = `${teamData.points} pts`;
+        }
+        return row;
     }
 
     closeReveal() {
@@ -2201,18 +2219,27 @@ class RelegationSimulator {
         this.setMode('fixture');
     }
 
+    // UPDATED SHARE FUNCTION
     sharePrediction() {
         const content = document.getElementById('reveal-content-box');
         const actions = document.getElementById('reveal-actions');
 
         // Temporarily hide actions for screenshot
         actions.style.display = 'none';
-        content.style.backgroundColor = '#16213e'; // Ensure background is solid
+        
+        // Save original styles
+        const originalBg = content.style.background;
+        const originalBackdrop = content.style.backdropFilter;
+        
+        // Force opaque background and remove blur for clean capture
+        content.style.background = '#16213e';
+        content.style.backdropFilter = 'none';
 
-        html2canvas(content).then(canvas => {
+        html2canvas(content, { scale: 2 }).then(canvas => {
             // Restore UI
             actions.style.display = 'flex';
-            content.style.backgroundColor = '';
+            content.style.background = originalBg;
+            content.style.backdropFilter = originalBackdrop;
 
             canvas.toBlob(blob => {
                 const file = new File([blob], 'my-prediction.png', { type: 'image/png' });
