@@ -780,8 +780,10 @@
 
         /* Updated Swipe Exit Button - Integrated into layout */
         .swipe-exit-btn {
-            position: relative;
-            margin-left: auto; /* Pushes it to the right in flexbox */
+            position: absolute; /* Changed to absolute to pin right */
+            right: 0;           /* Pin to right */
+            top: 50%;           /* Center vertically */
+            transform: translateY(-50%); /* Center correction */
             background: var(--loss);
             border: 2px solid rgba(255, 255, 255, 0.5);
             color: white;
@@ -878,6 +880,7 @@
             perspective: 1000px;
             max-height: 60vh;
             max-width: 450px; /* Constrain width on desktop */
+            width: 100%;      /* Added: Ensure it fills space up to max-width */
             margin: 0 auto;   /* Center it */
         }
 
@@ -1437,7 +1440,7 @@
                     <div class="fixtures-header">
                         <h2 style="color: var(--forest-red);">🌲 Nottingham Forest</h2>
                         <div class="team-summary">
-                            <span id="forest-summary">Current: 26 pts</span>
+                            <span id="forest-summary">Current: 27 pts</span>
                         </div>
                     </div>
                     <div class="fixture-grid" id="forest-fixtures"></div>
@@ -1552,7 +1555,7 @@ const TEAMS_DATA = {
     },
     'forest': {
         name: 'Nottingham Forest',
-        currentPoints: 26,
+        currentPoints: 27, // UPDATED POINTS
         currentGD: -13,
         fixtures: [
             { date: 'Feb 22', opponent: 'Liverpool', venue: 'H', fdr: 5 },
@@ -1622,7 +1625,8 @@ class RelegationSimulator {
         document.getElementById('btn-reset-all').addEventListener('click', () => this.resetAll());
 
         // Swipe mode controls
-        document.getElementById('btn-exit-swipe').addEventListener('click', () => this.setMode('fixture'));
+        // UPDATED: Exit button now goes to Landing Page (Mode Selection)
+        document.getElementById('btn-exit-swipe').addEventListener('click', () => this.showLanding());
         document.getElementById('swipe-back-btn').addEventListener('click', () => this.goBackSwipe());
         document.getElementById('btn-swipe-loss').addEventListener('click', () => this.swipeCard('L'));
         document.getElementById('btn-swipe-draw').addEventListener('click', () => this.swipeCard('D'));
