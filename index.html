@@ -605,6 +605,11 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
         @keyframes pulse {
             0%, 100% {
                 box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4);
@@ -930,6 +935,19 @@
             display: flex;
         }
 
+        /* Swipe Mode Animations */
+        .swipe-container.active .swipe-progress {
+            animation: slideInDown 0.5s ease backwards;
+        }
+        
+        .swipe-container.active .swipe-card-wrapper {
+            animation: zoomIn 0.5s ease 0.2s backwards;
+        }
+        
+        .swipe-container.active .swipe-actions {
+            animation: slideInUp 0.5s ease 0.4s backwards;
+        }
+
         /* Updated Swipe Exit Button - Integrated into layout */
         .swipe-exit-btn {
             position: absolute; /* Changed to absolute to pin right */
@@ -965,7 +983,7 @@
         body.swipe-mode-active .app-header, /* CHANGED: Only hide app header */
         body.swipe-mode-active .prediction-table-top,
         body.swipe-mode-active .controls,
-        /* body.swipe-mode-active .mode-selector, REMOVED to fix entry glitch */
+        body.swipe-mode-active .mode-selector,
         body.swipe-mode-active .fdr-legend,
         body.swipe-mode-active .floating-mini-table {
             display: none;
@@ -1465,6 +1483,12 @@
 
             .reveal-title {
                 font-size: 2rem;
+            }
+
+            /* NEW: Adjust Swipe Layout for Mobile to reduce top space */
+            .swipe-container {
+                justify-content: flex-start;
+                padding-top: 60px; /* Space for the exit button but higher up */
             }
         }
     </style>
@@ -2159,10 +2183,11 @@ class RelegationSimulator {
     }
 
     showLanding() {
-        // 1. Clean up swipe mode stuff - DELAY THIS until after fade!
-        // document.body.classList.remove('swipe-mode-active'); // REMOVED FROM HERE
+        // FIXED: Clean up swipe mode state properly
+        document.body.classList.remove('swipe-mode-active');
         document.body.style.overflow = 'auto';
         
+        // Reset surprise mode default
         this.surpriseMode = false;
         document.getElementById('surprise-mode-toggle').checked = false;
         
