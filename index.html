@@ -44,6 +44,57 @@
             min-height: 100vh;
         }
 
+        /* Intro Overlay */
+        #intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 1;
+            transition: opacity 1.5s ease;
+        }
+
+        #intro-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #intro-text {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.5rem;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .intro-line {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            margin-bottom: 15px;
+        }
+
+        .intro-line.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            #intro-text {
+                font-size: 1.8rem;
+            }
+        }
+
         .container {
             max-width: 1600px;
             margin: 0 auto;
@@ -1494,10 +1545,15 @@
     </style>
 </head>
 <body>
+    <div id="intro-overlay">
+       <div id="intro-text"></div>
+       <button id="intro-close-btn" class="modal-close-btn" aria-label="Skip Intro" style="display: none;"><span aria-hidden="true">✕</span></button>
+    </div>
+
     <div id="landing-page">
         <header>
             <h1>Relegation Simulator 2025/26</h1>
-            <p class="subtitle">Predict Fixtures & Calculate Relegation</p>
+            <p class="subtitle">Will The Hammers Survive?</p>
         </header>
 
         <div class="mode-selector">
@@ -1674,6 +1730,79 @@
     </div>
 
     <script>
+// --- Intro Sequence Logic ---
+function initIntro() {
+    const hasVisited = localStorage.getItem('hasVisitedSite');
+    const introOverlay = document.getElementById('intro-overlay');
+    const introText = document.getElementById('intro-text');
+    const introCloseBtn = document.getElementById('intro-close-btn');
+    
+    // Helper to create and fade lines
+    const addLine = (text) => {
+        const line = document.createElement('div');
+        line.className = 'intro-line';
+        line.textContent = text;
+        introText.appendChild(line);
+        // Force reflow
+        void line.offsetWidth;
+        line.classList.add('visible');
+    };
+
+    const clearText = () => {
+        introText.innerHTML = '';
+    };
+
+    const finishIntro = () => {
+        introOverlay.classList.add('hidden');
+        setTimeout(() => {
+            introOverlay.style.display = 'none';
+        }, 1500);
+        localStorage.setItem('hasVisitedSite', 'true');
+    };
+
+    // If visited, show close button
+    if (hasVisited) {
+        introCloseBtn.style.display = 'flex';
+        introCloseBtn.addEventListener('click', () => {
+            // Kill animations? Simplest is just hide overlay immediately
+            introOverlay.style.display = 'none';
+        });
+    }
+
+    // Sequence
+    setTimeout(() => addLine("They're all talking about it."), 500);
+    setTimeout(() => addLine("Everyone's at it!"), 2000);
+    
+    setTimeout(() => {
+        // Fade out text
+        Array.from(introText.children).forEach(child => child.classList.remove('visible'));
+    }, 4000);
+
+    setTimeout(() => {
+        clearText();
+        addLine("Will they?");
+    }, 5000);
+
+    setTimeout(() => addLine("Won't they?"), 6000);
+
+    setTimeout(() => {
+        Array.from(introText.children).forEach(child => child.classList.remove('visible'));
+    }, 7500);
+
+    setTimeout(() => {
+        clearText();
+        addLine("Let's find out in...");
+    }, 8500);
+
+    setTimeout(() => {
+        finishIntro();
+    }, 10500);
+}
+
+// Run Intro on Load
+window.addEventListener('load', initIntro);
+
+
 /**
  * Relegation Simulator 2025/26 - Configuration & Logic
  */
@@ -2470,30 +2599,43 @@ class RelegationSimulator {
         revealMessage.classList.add('drumroll');
 
         revealTable.innerHTML = '';
+        
+        // Render rows hidden
         tableData.forEach((team, index) => {
-            const position = index + 1;
             const rowDiv = document.createElement('div');
-
-            let rowClass = 'reveal-row';
-            if (index === CONFIG.RELEGATION_INDEX) {
-                rowClass += ' relegated';
-            }
-
-            rowDiv.className = rowClass;
+            rowDiv.className = 'reveal-row'; 
+            rowDiv.id = `reveal-row-${index}`;
+            // Empty initially or use placeholders? Let's use placeholders as per previous instruction, 
+            // or just hide content and reveal? The user said "reveal top team, then...".
+            // We will render placeholders first.
             rowDiv.innerHTML = `
-                <div class="reveal-pos">${position}</div>
-                <div class="reveal-team">${team.name}</div>
-                <div class="reveal-pts">${team.points} pts</div>
+                <div class="reveal-pos">${index + 1}</div>
+                <div class="reveal-team">???</div>
+                <div class="reveal-pts">?? pts</div>
             `;
-
             revealTable.appendChild(rowDiv);
         });
 
         overlay.classList.add('active');
         document.body.style.overflow = 'hidden';
 
-        // Reveal outcome after 2.5 seconds
+        // Timing Sequence:
+        // 0s: Drum roll start
+        // 1.0s: Reveal 1st
+        // 2.0s: Reveal 2nd
+        // 4.0s: Reveal 3rd
+        // 4.5s: Reveal 4th (Relegated)
+
+        setTimeout(() => { this.updateRevealRow(0, tableData[0]); }, 1000); // 1st Place
+        setTimeout(() => { this.updateRevealRow(1, tableData[1]); }, 2000); // 2nd Place
+        setTimeout(() => { this.updateRevealRow(2, tableData[2]); }, 4000); // 3rd Place
+
         setTimeout(() => {
+            // Reveal 4th
+            const row = this.updateRevealRow(3, tableData[3]);
+            row.classList.add('relegated');
+            
+            // Final Message
             revealMessage.classList.remove('drumroll');
 
             if (relegatedTeam.teamKey === 'spurs') {
@@ -2503,13 +2645,26 @@ class RelegationSimulator {
             } else {
                 revealMessage.innerHTML = `${relegatedTeam.name} are RELEGATED!<br>The Hammers SURVIVE! ⚒️`;
             }
-        }, 2500);
+        }, 4500); // 4th Place (0.5s after 3rd)
+    }
+    
+    updateRevealRow(index, teamData) {
+        const row = document.getElementById(`reveal-row-${index}`);
+        if (row) {
+            row.querySelector('.reveal-team').textContent = teamData.name;
+            row.querySelector('.reveal-pts').textContent = `${teamData.points} pts`;
+        }
+        return row;
     }
 
     closeReveal() {
         document.getElementById('reveal-overlay').classList.remove('active');
         document.body.style.overflow = '';
         this.setMode('fixture');
+        // If we were in surprise mode, maybe show table now?
+        // Let's force an update to show the final result in the top table
+        this.surpriseMode = false;
+        this.updateTable();
     }
 
     sharePrediction() {
@@ -2518,30 +2673,47 @@ class RelegationSimulator {
 
         // Temporarily hide actions for screenshot
         actions.style.display = 'none';
-        content.style.backgroundColor = '#16213e'; // Ensure background is solid
+        
+        // Force styling for capture
+        const originalBg = content.style.background;
+        content.style.background = '#16213e'; // Solid background
+        content.style.borderRadius = '0'; // Flat corners for cleaner image? or keep rounded. Keep rounded.
 
-        html2canvas(content).then(canvas => {
+        html2canvas(content, {
+            scale: 2, // High resolution
+            backgroundColor: '#16213e',
+            useCORS: true
+        }).then(canvas => {
             // Restore UI
             actions.style.display = 'flex';
-            content.style.backgroundColor = '';
+            content.style.background = originalBg;
 
             canvas.toBlob(blob => {
-                const file = new File([blob], 'my-prediction.png', { type: 'image/png' });
+                if (!blob) return;
+                
+                const file = new File([blob], 'my-relegation-prediction.png', { type: 'image/png' });
 
-                if (navigator.share && navigator.canShare({ files: [file] })) {
+                // Try native share (Mobile/Tablet/Supported Desktop)
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                     navigator.share({
                         title: 'Will The Hammers Survive?',
-                        text: 'Check out my relegation prediction! ⚒️',
+                        text: 'I just predicted the Premier League relegation battle! ⚽',
                         files: [file]
-                    }).catch(console.error);
+                    }).catch((err) => {
+                        console.error('Share failed', err);
+                        // Fallback to download if share cancels/fails (optional, but good UX)
+                        // this.downloadImage(canvas); 
+                    });
                 } else {
-                    // Fallback to download
+                    // Fallback for Desktop (Direct Download)
                     const link = document.createElement('a');
-                    link.download = 'my-prediction.png';
-                    link.href = canvas.toDataURL();
+                    link.download = 'my-relegation-prediction.png';
+                    link.href = canvas.toDataURL('image/png');
+                    document.body.appendChild(link);
                     link.click();
+                    document.body.removeChild(link);
                 }
-            });
+            }, 'image/png');
         });
     }
 
