@@ -1799,9 +1799,7 @@ class RelegationSimulator {
         // Settings Modal Close Button
         document.getElementById('btn-close-settings').addEventListener('click', () => {
             document.getElementById('settings-modal').classList.remove('show');
-            // If they close without choosing, we go back to landing? Or just sit there?
-            // User requested closing goes back to menu (Landing) essentially canceling start
-            this.showLanding(); 
+            this.showLanding(); // Return to landing on close
         });
 
         // Controls
@@ -2158,23 +2156,35 @@ class RelegationSimulator {
     }
 
     showLanding() {
-        // FIXED: Clean up swipe mode state properly
+        // 1. Clean up swipe mode stuff
         document.body.classList.remove('swipe-mode-active');
         document.body.style.overflow = 'auto';
         
-        // Reset surprise mode default
         this.surpriseMode = false;
         document.getElementById('surprise-mode-toggle').checked = false;
         
         const landing = document.getElementById('landing-page');
         const app = document.getElementById('app-content');
 
-        // Fade out app content
-        app.classList.remove('visible');
+        // 2. Fade Out App (Fixing the "sudden disappearance")
+        // Maintain layout while fading
+        app.style.display = 'block'; 
+        app.style.opacity = '1'; 
+        
+        // Force reflow to ensure browser knows we are starting at opacity 1
+        void app.offsetWidth;
+        
+        // Now fade
+        app.style.opacity = '0';
 
         setTimeout(() => {
+            // 3. Reset App State (Hidden)
+            app.classList.remove('visible');
+            app.style.display = 'none';
+            app.style.opacity = ''; // Clear inline
+            
+            // 4. Fade In Landing
             landing.style.display = 'flex';
-            // Trigger reflow
             void landing.offsetWidth;
             landing.classList.remove('hidden');
         }, 500);
