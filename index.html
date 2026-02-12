@@ -253,7 +253,6 @@
             background: #0060d0;
         }
 
-
         .controls {
             display: flex;
             gap: 15px;
@@ -606,24 +605,21 @@
         /* Floating Mini Table - Drawer Design */
         .floating-mini-table {
             position: fixed;
-            bottom: 0; /* Align to bottom for drawer effect */
+            bottom: 20px; /* IMPROVED: Changed from 0 to 20px */
             left: 50%;
             transform: translateX(-50%) translateY(150%);
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-radius: 24px 24px 0 0; /* Rounded top only */
-            padding: 15px 25px 30px 25px; /* Extra bottom padding */
+            border-radius: 24px;
+            padding: 15px 25px 30px 25px;
             border: 1px solid rgba(255, 255, 255, 0.18);
-            border-bottom: none;
-            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.37),
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37),
                         inset 0 1px 0 rgba(255, 255, 255, 0.1);
             z-index: 1000;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* Drawer slide effect */
-            min-width: 350px;
-            max-width: 90vw;
-            width: 100%;
-            max-width: 500px;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 90%; /* IMPROVED */
+            max-width: 400px; /* IMPROVED */
         }
 
         .floating-mini-table.show {
@@ -632,13 +628,13 @@
 
         /* Minimized State - Peeking Drawer */
         .floating-mini-table.minimized {
-            transform: translateX(-50%) translateY(calc(100% - 50px)); /* Hide content, keep header visible */
-            cursor: pointer; /* Indicate clickable */
+            transform: translateX(-50%) translateY(calc(100% - 50px));
+            cursor: pointer;
         }
         
         .mini-table-minimize-btn {
             position: absolute;
-            top: 15px;
+            top: 15px; /* IMPROVED: Aligned with pin */
             left: 20px;
             cursor: pointer;
             font-size: 1.2rem;
@@ -657,7 +653,6 @@
         }
 
         .floating-mini-table.minimized .mini-table-minimize-btn {
-             /* Flip arrow up */
             transform: rotate(180deg);
         }
 
@@ -668,7 +663,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            border-radius: 24px 24px 0 0;
+            border-radius: 24px;
             background: linear-gradient(180deg, 
                 rgba(255, 255, 255, 0.1) 0%, 
                 rgba(255, 255, 255, 0.02) 100%);
@@ -687,13 +682,13 @@
             font-weight: 600;
             position: relative;
             padding-top: 5px;
-            cursor: pointer; /* Header is clickable to toggle */
+            cursor: pointer;
         }
 
         .mini-table-pin {
             position: absolute;
-            top: 0;
-            right: 0;
+            top: 15px; /* IMPROVED: Aligned with minimize btn */
+            right: 20px; /* Matches padding */
             cursor: pointer;
             opacity: 0.5;
             transition: opacity 0.3s;
@@ -1019,6 +1014,7 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
             z-index: 1;
             overflow: hidden; /* Contains the pseudo element */
+            touch-action: none; /* IMPROVED: Locks scroll on mobile swipe */
         }
 
         .swipe-card::before {
@@ -1520,7 +1516,9 @@
                 <button class="swipe-back-btn" id="swipe-back-btn" title="Go back" aria-label="Go to previous card"><span aria-hidden="true">←</span></button>
                 <div class="swipe-progress-text">
                     <div><span class="current" id="swipe-current">1</span> / <span id="swipe-total">48</span></div>
-                    <div style="margin-top: 10px; font-size: 0.9rem;">Swipe or click buttons below</div>
+                    <div class="swipe-hint" style="margin-top: 10px; font-size: 0.9rem;">
+                        Swipe or use Arrow Keys (← Loss, ↑ Draw, → Win)
+                    </div>
                 </div>
                 <button class="swipe-exit-btn" id="btn-exit-swipe" title="Exit Swipe Mode" aria-label="Exit Swipe Mode"><span aria-hidden="true">✕</span></button>
             </div>
@@ -1533,8 +1531,6 @@
                 <button class="swipe-btn draw" id="btn-swipe-draw" title="Draw" aria-label="Predict Draw"><span aria-hidden="true">D</span></button>
                 <button class="swipe-btn win" id="btn-swipe-win" title="Win" aria-label="Predict Win"><span aria-hidden="true">W</span></button>
             </div>
-
-            <div class="swipe-hint">Swipe left for Loss, up for Draw, right for Win</div>
         </div>
 
         <div class="main-grid" id="main-grid">
@@ -1589,11 +1585,8 @@
     </div>
 
     <div class="floating-mini-table" id="floatingTable">
-        <div class="mini-table-arrow">📊</div>
-        <div class="mini-table-header">
-            <button class="mini-table-minimize-btn" id="btn-minimize-table" aria-label="Minimize table" type="button"><span aria-hidden="true">⬇️</span></button>
-            <span class="header-text">Live Standings</span>
-        </div>
+        <button class="mini-table-minimize-btn" id="btn-minimize-table" aria-label="Minimize table" type="button"><span aria-hidden="true">▼</span></button>
+        <div class="mini-table-header">Live Standings</div>
         <div id="mini-table-content"></div>
     </div>
 
@@ -2213,7 +2206,15 @@ class RelegationSimulator {
         const drag = (e) => {
             if (!isDragging) return;
             const touch = e.type === 'touchmove' ? e.touches[0] : e;
-            if (e.type === 'touchmove') e.preventDefault();
+            // IMPROVED: Prevent scrolling while swiping
+            if (e.cancelable) e.preventDefault();
+            
+            if (e.type === 'touchmove') {
+                 // Already handled above
+            } else {
+                 e.preventDefault(); 
+            }
+            
             currentX = touch.clientX;
             currentY = touch.clientY;
             
@@ -2287,6 +2288,7 @@ class RelegationSimulator {
 
             // Add document listeners only when dragging starts
             document.addEventListener('mousemove', drag);
+            // IMPROVED: passive: false allows preventDefault
             document.addEventListener('touchmove', drag, { passive: false });
             document.addEventListener('mouseup', endDrag);
             document.addEventListener('touchend', endDrag);
@@ -2481,7 +2483,7 @@ class RelegationSimulator {
             btn.title = 'Expand table';
             btn.setAttribute('aria-label', 'Expand table');
         } else {
-            btn.textContent = '⬇️';
+            btn.textContent = '▼'; // IMPROVED: Simple arrow icon
             btn.title = 'Minimize table';
             btn.setAttribute('aria-label', 'Minimize table');
         }
@@ -2499,7 +2501,7 @@ class RelegationSimulator {
         // NEW: Auto-expand logic based on 3-strike rule
         if (this.minimizeCount < 3) {
             floatingTable.classList.remove('minimized');
-            document.getElementById('btn-minimize-table').textContent = '⬇️';
+            document.getElementById('btn-minimize-table').textContent = '▼'; // IMPROVED: Icon
         }
 
         const miniTableContent = document.getElementById('mini-table-content');
