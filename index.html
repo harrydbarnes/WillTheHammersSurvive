@@ -965,7 +965,7 @@
         body.swipe-mode-active .app-header, /* CHANGED: Only hide app header */
         body.swipe-mode-active .prediction-table-top,
         body.swipe-mode-active .controls,
-        body.swipe-mode-active .mode-selector,
+        /* body.swipe-mode-active .mode-selector, REMOVED to fix entry glitch */
         body.swipe-mode-active .fdr-legend,
         body.swipe-mode-active .floating-mini-table {
             display: none;
@@ -1799,7 +1799,9 @@ class RelegationSimulator {
         // Settings Modal Close Button
         document.getElementById('btn-close-settings').addEventListener('click', () => {
             document.getElementById('settings-modal').classList.remove('show');
-            this.showLanding(); // Return to landing on close
+            // If they close without choosing, we go back to landing? Or just sit there?
+            // User requested closing goes back to menu (Landing) essentially canceling start
+            this.showLanding(); 
         });
 
         // Controls
@@ -2157,11 +2159,10 @@ class RelegationSimulator {
     }
 
     showLanding() {
-        // FIXED: Clean up swipe mode state properly
-        document.body.classList.remove('swipe-mode-active');
+        // 1. Clean up swipe mode stuff - DELAY THIS until after fade!
+        // document.body.classList.remove('swipe-mode-active'); // REMOVED FROM HERE
         document.body.style.overflow = 'auto';
         
-        // Reset surprise mode default
         this.surpriseMode = false;
         document.getElementById('surprise-mode-toggle').checked = false;
         
@@ -2180,6 +2181,9 @@ class RelegationSimulator {
         app.style.opacity = '0';
 
         setTimeout(() => {
+            // MOVED FROM START:
+            document.body.classList.remove('swipe-mode-active'); 
+
             // 3. Reset App State (Hidden)
             app.classList.remove('visible');
             app.style.display = 'none';
