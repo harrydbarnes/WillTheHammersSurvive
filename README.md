@@ -48,10 +48,10 @@ Want to make this for your own relegation battle? Or maybe the title race? (We c
 
 1.  **Fork this repo** 🍴
 2.  Open `index.html`.
-3.  Look for the `const teams` object in the `<script>` tag.
+3.  Look for the `const TEAMS_DATA` object in the `<script>` tag.
 4.  Swap out the teams, points, and fixtures.
     ```javascript
-    const teams = {
+    const TEAMS_DATA = {
         'your-team': {
             name: 'Your Team FC',
             currentPoints: 40,
