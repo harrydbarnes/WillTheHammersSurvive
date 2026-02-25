@@ -1667,7 +1667,7 @@
                     <div class="fixtures-header">
                         <h2 class="text-glow-white west-ham-header">⚒️ West Ham United</h2>
                         <div class="team-summary">
-                            <span id="west-ham-summary">Current: 23 pts</span>
+                            <span id="west-ham-summary">Current: 25 pts</span>
                         </div>
                     </div>
                     <div class="fixture-grid" id="west-ham-fixtures"></div>
@@ -1677,7 +1677,7 @@
                     <div class="fixtures-header">
                         <h2 style="color: var(--sky-blue);">⚪ Leeds United</h2>
                         <div class="team-summary">
-                            <span id="leeds-summary">Current: 30 pts</span>
+                            <span id="leeds-summary">Current: 31 pts</span>
                         </div>
                     </div>
                     <div class="fixture-grid" id="leeds-fixtures"></div>
@@ -1855,10 +1855,9 @@ const CONFIG = {
 const TEAMS_DATA = {
     'west-ham': {
         name: 'West Ham',
-        currentPoints: 23,
+        currentPoints: 25,
         currentGD: -17,
         fixtures: [
-            { date: 'Feb 21', opponent: 'Bournemouth', venue: 'H', fdr: 3 },
             { date: 'Feb 28', opponent: 'Liverpool', venue: 'A', fdr: 5 },
             { date: 'Mar 4', opponent: 'Fulham', venue: 'A', fdr: 4 },
             { date: 'Mar 14', opponent: 'Man City', venue: 'H', fdr: 5 },
@@ -1874,10 +1873,9 @@ const TEAMS_DATA = {
     },
     'leeds': {
         name: 'Leeds United',
-        currentPoints: 30,
+        currentPoints: 31,
         currentGD: -9,
         fixtures: [
-            { date: 'Feb 21', opponent: 'Aston Villa', venue: 'A', fdr: 4 },
             { date: 'Feb 28', opponent: 'Man City', venue: 'A', fdr: 5 },
             { date: 'Mar 4', opponent: 'Sunderland', venue: 'A', fdr: 3 },
             { date: 'Mar 14', opponent: 'Crystal Palace', venue: 'A', fdr: 3 },
@@ -1896,7 +1894,6 @@ const TEAMS_DATA = {
         currentPoints: 29,
         currentGD: -1,
         fixtures: [
-            { date: 'Feb 22', opponent: 'Arsenal', venue: 'H', fdr: 5 },
             { date: 'Mar 1', opponent: 'Fulham', venue: 'A', fdr: 4 },
             { date: 'Mar 5', opponent: 'Crystal Palace', venue: 'H', fdr: 3 },
             { date: 'Mar 15', opponent: 'Liverpool', venue: 'A', fdr: 5 },
@@ -1913,9 +1910,8 @@ const TEAMS_DATA = {
     'forest': {
         name: 'Nottingham Forest',
         currentPoints: 27,
-        currentGD: -13,
+        currentGD: -14,
         fixtures: [
-            { date: 'Feb 22', opponent: 'Liverpool', venue: 'H', fdr: 5 },
             { date: 'Mar 1', opponent: 'Brighton', venue: 'A', fdr: 4 },
             { date: 'Mar 4', opponent: 'Man City', venue: 'A', fdr: 5 },
             { date: 'Mar 14', opponent: 'Fulham', venue: 'H', fdr: 4 },
@@ -2262,16 +2258,17 @@ class RelegationSimulator {
         for (let teamKey in this.teams) {
             const { points } = this.calculatePoints(teamKey);
             const played = this.results[teamKey].filter(r => r !== null).length;
+            const total = this.results[teamKey].length;
             const summaryEl = document.getElementById(`${teamKey}-summary`);
             if (summaryEl) {
-                summaryEl.innerHTML = `Predicted: <strong>${points} pts</strong> (${played}/12 played)`;
+                summaryEl.innerHTML = `Predicted: <strong>${points} pts</strong> (${played}/${total} played)`;
             }
         }
 
         tableContainer.innerHTML = '';
 
         tableData.forEach((team, index) => {
-            const position = index + 1;
+            const position = index + 15;
             const rowDiv = document.createElement('div');
 
             // Determine if relegated
@@ -2633,7 +2630,7 @@ class RelegationSimulator {
 
         revealTable.innerHTML = '';
         tableData.forEach((team, index) => {
-            const position = index + 1;
+            const position = index + 15;
             const rowDiv = document.createElement('div');
 
             let rowClass = 'reveal-row';
@@ -2758,7 +2755,7 @@ class RelegationSimulator {
 
         if (prevStandings) {
             prevStandings.forEach((team, index) => {
-                prevRankMap[team.teamKey] = index + 1;
+                prevRankMap[team.teamKey] = index + 15;
             });
 
             // FLIP: Measure First
@@ -2773,7 +2770,7 @@ class RelegationSimulator {
 
         // FLIP: Apply Last (Update DOM)
         currStandings.forEach((team, index) => {
-            const position = index + 1;
+            const position = index + 15;
             let row = document.getElementById(`mini-row-${team.teamKey}`);
 
             if (!row) {
