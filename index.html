@@ -1667,7 +1667,7 @@
                     <div class="fixtures-header">
                         <h2 class="text-glow-white west-ham-header">⚒️ West Ham United</h2>
                         <div class="team-summary">
-                            <span id="west-ham-summary">Current: 25 pts</span>
+                            <span id="west-ham-summary">Loading...</span>
                         </div>
                     </div>
                     <div class="fixture-grid" id="west-ham-fixtures"></div>
@@ -1677,7 +1677,7 @@
                     <div class="fixtures-header">
                         <h2 style="color: var(--sky-blue);">⚪ Leeds United</h2>
                         <div class="team-summary">
-                            <span id="leeds-summary">Current: 31 pts</span>
+                            <span id="leeds-summary">Loading...</span>
                         </div>
                     </div>
                     <div class="fixture-grid" id="leeds-fixtures"></div>
@@ -1687,7 +1687,7 @@
                     <div class="fixtures-header">
                         <h2 style="color: var(--navy);" class="text-glow-white">⚪ Tottenham Hotspur</h2>
                         <div class="team-summary">
-                            <span id="spurs-summary">Current: 29 pts</span>
+                            <span id="spurs-summary">Loading...</span>
                         </div>
                     </div>
                     <div class="fixture-grid" id="spurs-fixtures"></div>
@@ -1697,7 +1697,7 @@
                     <div class="fixtures-header">
                         <h2 style="color: var(--forest-red);">🌲 Nottingham Forest</h2>
                         <div class="team-summary">
-                            <span id="forest-summary">Current: 27 pts</span>
+                            <span id="forest-summary">Loading...</span>
                         </div>
                     </div>
                     <div class="fixture-grid" id="forest-fixtures"></div>
@@ -2261,7 +2261,11 @@ class RelegationSimulator {
             const total = this.results[teamKey].length;
             const summaryEl = document.getElementById(`${teamKey}-summary`);
             if (summaryEl) {
-                summaryEl.innerHTML = `Predicted: <strong>${points} pts</strong> (${played}/${total} played)`;
+                if (played === 0) {
+                    summaryEl.innerHTML = `Current: <strong>${points} pts</strong>`;
+                } else {
+                    summaryEl.innerHTML = `Predicted: <strong>${points} pts</strong> (${played}/${total} played)`;
+                }
             }
         }
 
