@@ -1643,7 +1643,7 @@
             <div class="swipe-progress">
                 <button class="swipe-back-btn" id="swipe-back-btn" title="Go back" aria-label="Go to previous card"><span aria-hidden="true">←</span></button>
                 <div class="swipe-progress-text">
-                    <div><span class="current" id="swipe-current">1</span> / <span id="swipe-total">40</span></div>
+                    <div><span class="current" id="swipe-current">1</span> / <span id="swipe-total">24</span></div>
                     <div class="swipe-hint" style="margin-top: 10px; font-size: 0.9rem;">
                         Swipe or use Arrow Keys (← Loss, ↑ Draw, → Win)
                     </div>
@@ -1855,12 +1855,9 @@ const CONFIG = {
 const TEAMS_DATA = {
     'west-ham': {
         name: 'West Ham',
-        currentPoints: 28,
-        currentGD: -19,
+        currentPoints: 32,
+        currentGD: -17,
         fixtures: [
-            { date: 'Mar 14', opponent: 'Man City', venue: 'H', fdr: 5 },
-            { date: 'Mar 21', opponent: 'Aston Villa', venue: 'A', fdr: 4 },
-            { date: 'Apr 11', opponent: 'Wolves', venue: 'H', fdr: 2 },
             { date: 'Apr 18', opponent: 'Crystal Palace', venue: 'A', fdr: 3 },
             { date: 'Apr 25', opponent: 'Everton', venue: 'H', fdr: 3 },
             { date: 'May 2', opponent: 'Brentford', venue: 'A', fdr: 4 },
@@ -1871,13 +1868,10 @@ const TEAMS_DATA = {
     },
     'leeds': {
         name: 'Leeds United',
-        currentPoints: 31,
-        currentGD: -11,
+        currentPoints: 36,
+        currentGD: -10,
         fixtures: [
-            { date: 'Mar 14', opponent: 'Crystal Palace', venue: 'A', fdr: 3 },
-            { date: 'Mar 21', opponent: 'Brighton', venue: 'H', fdr: 4 },
-            { date: 'Apr 11', opponent: 'Burnley', venue: 'A', fdr: 3 },
-            { date: 'Apr 18', opponent: 'Brentford', venue: 'H', fdr: 4 },
+            { date: 'Apr 18', opponent: 'Wolves', venue: 'H', fdr: 2 },
             { date: 'Apr 25', opponent: 'Sunderland', venue: 'H', fdr: 3 },
             { date: 'May 2', opponent: 'Newcastle', venue: 'A', fdr: 4 },
             { date: 'May 9', opponent: 'Chelsea', venue: 'H', fdr: 5 },
@@ -1887,13 +1881,10 @@ const TEAMS_DATA = {
     },
     'spurs': {
         name: 'Tottenham',
-        currentPoints: 29,
-        currentGD: -7,
+        currentPoints: 30,
+        currentGD: -11,
         fixtures: [
-            { date: 'Mar 15', opponent: 'Liverpool', venue: 'A', fdr: 5 },
-            { date: 'Mar 22', opponent: 'Brighton', venue: 'A', fdr: 4 },
-            { date: 'Apr 11', opponent: 'Everton', venue: 'H', fdr: 3 },
-            { date: 'Apr 18', opponent: 'Sunderland', venue: 'A', fdr: 3 },
+            { date: 'Apr 18', opponent: 'Brighton', venue: 'H', fdr: 4 },
             { date: 'Apr 25', opponent: 'Newcastle', venue: 'H', fdr: 4 },
             { date: 'May 2', opponent: 'Man United', venue: 'A', fdr: 4 },
             { date: 'May 9', opponent: 'Burnley', venue: 'H', fdr: 3 },
@@ -1903,12 +1894,9 @@ const TEAMS_DATA = {
     },
     'forest': {
         name: 'Nottingham Forest',
-        currentPoints: 28,
-        currentGD: -15,
+        currentPoints: 33,
+        currentGD: -12,
         fixtures: [
-            { date: 'Mar 14', opponent: 'Fulham', venue: 'H', fdr: 4 },
-            { date: 'Mar 21', opponent: 'Everton', venue: 'A', fdr: 3 },
-            { date: 'Apr 11', opponent: 'Burnley', venue: 'H', fdr: 3 },
             { date: 'Apr 18', opponent: 'Sunderland', venue: 'H', fdr: 3 },
             { date: 'Apr 25', opponent: 'Brentford', venue: 'A', fdr: 4 },
             { date: 'May 2', opponent: 'Chelsea', venue: 'H', fdr: 5 },
